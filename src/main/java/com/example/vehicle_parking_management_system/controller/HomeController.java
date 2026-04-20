@@ -12,6 +12,6 @@ public class HomeController {
     //handle HTTP GET requests for specific URL paths ("/" and "/home")
     @GetMapping({"/", "/home"})
     public String home() {
-        return "parknow-core-ui";
+        return "parknow";
     }
 }
