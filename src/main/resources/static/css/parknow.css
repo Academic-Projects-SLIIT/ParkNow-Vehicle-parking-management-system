@@ -333,6 +333,7 @@ tbody tr:hover td { background: #f4fbfd; }
   position: relative; overflow: hidden;
   padding: 100px 56px 80px;
   display: flex; align-items: center; min-height: calc(100vh - 68px);
+  justify-content: space-between;
 }
 
 /* Decorative background elements */
