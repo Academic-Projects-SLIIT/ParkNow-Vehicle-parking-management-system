@@ -18,14 +18,18 @@ public class SecurityConfig {
         http
             // Allow the home page and static resources without authentication
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/h2-console/**", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/", "/home", "/register", "/login", "/h2-console/**", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
             )
             // Use form login for everything else (default login page)
-            .formLogin(Customizer.withDefaults())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .permitAll()
+            )
 
-            // Disable CSRF for H2 console (not for production)
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+            // Disable CSRF for H2 console, register, and login (for AJAX POSTs)
+            // In production, use a CSRF token instead of ignoring these endpoints.
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/register", "/login"))
             
             // Allow frames for H2 console
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
