@@ -1,44 +1,4 @@
-/**
- * ParkNow - Login Logic
- * Integration for Spring Boot / Spring Security
- */
-
-/**
- * 1. Primary Login Handler
- * Validates input and triggers the authentication flow.
- */
-function handleLogin() {
-    const user = document.getElementById('login-user').value.trim();
-    const pass = document.getElementById('login-pass').value.trim();
-
-    // Basic Validation
-    if (!user || !pass) {
-        alert("Please enter both your username/email and password.");
-        return;
-    }
-
-    console.log("Attempting login for:", user);
-
-    /**
-     * SPRING BOOT INTEGRATION:
-     * If you are using standard Spring Security, you should remove 
-     * 'onsubmit="return false;"' from your HTML and let the form POST 
-     * naturally. 
-     * * If you want to keep the JS control, use the manual submit below:
-     */
-    // const form = document.querySelector('.auth-form');
-    // form.method = 'POST';
-    // form.action = '/login'; // Default Spring Security endpoint
-    // form.submit();
-
-    // For demo/UI testing purposes:
-    window.location.href = '/dashboard'; 
-}
-
-/**
- * 2. Navigation Logic
- * Maps the UI actions to your Spring Controller routes.
- */
+//Navigation Logic. Maps the UI actions to your Spring Controller routes.
 function showPage(pageId) {
     switch (pageId) {
         case 'pg-register':
@@ -47,23 +7,75 @@ function showPage(pageId) {
         case 'pg-home':
             window.location.href = '/';
             break;
+        case 'pg-driver-dash':
+            window.location.href='/driver/dashboard';
+            break;
+        case 'pg-admin-dash':
+            window.location.href='/admin/dashboard';
+            break;
         default:
             console.warn("Destination route not defined:", pageId);
     }
 }
 
-/**
- * 3. UI Helpers
- */
+// client-side validation -show a styled message
+function showMsg(el, text, type) {
+    el.textContent = text;
+    el.className = 'form-msg ' + type;      // type is 'success', 'error', or 'info'
+}
+
+
+async function handleLogin() {
+    const email = document.getElementById('login-user').value.trim();
+    const password = document.getElementById('login-pass').value.trim();
+     const messageElement = document.getElementById('login-msg');
+
+    // Basic Validation
+    if (!email || !password) {
+        showMsg(messageElement, 'Please enter both email and password.', 'error');
+        return;
+    }
+
+    const params = new URLSearchParams({email, password});
+
+    try{
+
+        // Send POST /login to UserController
+        const response = await fetch('/login', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // Spring Boot's @RequestParam expects this content type by default
+            body: params.toString()
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            showMsg(messageElement, 'Login successful. Redirecting to dashboard...', 'info');
+            setTimeout(() => showPage(data.redirect), 1500);
+
+        } else {
+            showMsg(messageElement, 'Invalid username or password.', 'error');
+        }
+
+
+    }catch(err){
+        showMsg(messageElement, 'Cannot reach server.', 'error');
+    }
+    
+}
+
+
+
+
+//UI Helpers
 function closeDropdown() {
     // Closes any navigation menus if they were open
     const menus = document.querySelectorAll('.dropdown-menu');
     menus.forEach(m => m.classList.remove('show'));
 }
 
-/**
- * 4. Event Listeners
- */
+
+ //Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     const loginInputs = document.querySelectorAll('.form-input');
 
