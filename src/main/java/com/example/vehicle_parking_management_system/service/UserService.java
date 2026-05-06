@@ -56,4 +56,28 @@ public class UserService {
         return driver;
     }
 
+    // authenticate user by email and password
+    public Optional<User> login(String email,String password){
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        //not found
+        if (userOpt.isEmpty()) 
+            return Optional.empty();
+
+        User user = userOpt.get();
+
+        //password doesn't match
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+
+            activityLogger.log(user.getId(), user.getRole(), "LOGIN_FAILED","Bad password for " + email);
+
+            return Optional.empty();
+        }
+        
+        activityLogger.log(user.getId(), user.getRole(), "USER_LOGIN", email);
+        
+        return Optional.of(user);
+    }
+
 }

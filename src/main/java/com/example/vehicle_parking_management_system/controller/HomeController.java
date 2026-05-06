@@ -24,5 +24,13 @@ public class HomeController {
     public String login() {
         return "login.html";
     }
+    @GetMapping("/driver/dashboard")
+    public String driverDashboard() {
+        return "driver-dashboard.html";
+    }
+    @GetMapping("/admin/dashboard")
+    public String adminDashboard() {
+        return "admin-dashboard.html";
+    }
     
 }

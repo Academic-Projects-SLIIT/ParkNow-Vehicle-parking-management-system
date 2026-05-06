@@ -80,36 +80,48 @@ public class UserRepository {
 
     /**
      * Parse a single CSV line into a User subclass.
-     * Driver: 7 fields — id,name,email,passwordHash,role,licenseNumber,vehicleCount
-     * Admin:  7 fields — id,name,email,passwordHash,role,adminLevel,createdBy
+     * Driver: 9 fields — id,fullName,userName,email,phone,passwordHash,role,licenseNumber,vehicleCount
+     * Admin:  9 fields — id,fullName,userName,email,phone,passwordHash,role,adminLevel,createdBy
      */
     private User parseLine(String line) {
         String[] parts = line.split(",", -1);
-        if (parts.length < 5) return null;
+        if (parts.length < 7) return null;
 
         String id           = parts[0].trim();
-        String name         = parts[1].trim();
-        String email        = parts[2].trim();
-        String passwordHash = parts[3].trim();
-        String role         = parts[4].trim();
+        String fullName     = parts[1].trim();
+        String userName     = parts[2].trim();
+        String email        = parts[3].trim();
+        String phone        = parts[4].trim();
+        String passwordHash = parts[5].trim();
+        String role         = parts[6].trim();
 
         if ("DRIVER".equalsIgnoreCase(role)) {
             Driver d = new Driver();
-            d.setId(id); d.setUserName(name); d.setEmail(email);
-            d.setPassword(passwordHash); d.setRole("DRIVER");
-            if (parts.length >= 7) {
-                d.setLicenseNumber(parts[5].trim());
-                d.setVehicleCount(parseIntSafe(parts[6].trim()));
+            d.setId(id);
+            d.setFullName(fullName);
+            d.setUserName(userName);
+            d.setEmail(email);
+            d.setPhone(phone);
+            d.setPassword(passwordHash);
+            d.setRole("DRIVER");
+            if (parts.length >= 9) {
+                d.setLicenseNumber(parts[7].trim());
+                d.setVehicleCount(parseIntSafe(parts[8].trim()));
             }
             return d;
         } else if ("ADMIN".equalsIgnoreCase(role)) {
             Admin a = new Admin();
-            a.setId(id); a.setUserName(name); a.setEmail(email);
-            a.setPassword(passwordHash); a.setRole("ADMIN");
-            if (parts.length >= 7) {
-                try { a.setAdminLevel(Admin.AdminLevel.valueOf(parts[5].trim())); }
+            a.setId(id);
+            a.setFullName(fullName);
+            a.setUserName(userName);
+            a.setEmail(email);
+            a.setPhone(phone);
+            a.setPassword(passwordHash);
+            a.setRole("ADMIN");
+            if (parts.length >= 9) {
+                try { a.setAdminLevel(Admin.AdminLevel.valueOf(parts[7].trim())); }
                 catch (IllegalArgumentException ex) { a.setAdminLevel(Admin.AdminLevel.READONLY); }
-                a.setCreatedBy(parts[6].trim());
+                a.setCreatedBy(parts[8].trim());
             }
             return a;
         }

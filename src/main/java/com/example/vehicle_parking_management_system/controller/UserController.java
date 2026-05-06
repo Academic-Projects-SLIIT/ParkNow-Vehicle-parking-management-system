@@ -4,6 +4,7 @@ import com.example.vehicle_parking_management_system.model.User;
 import com.example.vehicle_parking_management_system.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -55,4 +56,36 @@ public class UserController {
         }
     }
 
+
+    //On success: stores user in session, returns redirect path based on role.
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestParam String email,
+                                   @RequestParam String password,
+                                   HttpSession session) {
+
+        Optional<User> userOpt = userService.login(email,password);
+        
+        if (userOpt.isEmpty()) {
+        return ResponseEntity.status(401).body(Map.of(
+                "success", false,
+                "message", "Invalid email or password."
+        ));
+        }
+
+        User user = userOpt.get();
+        session.setAttribute("userId",   user.getId());
+        session.setAttribute("userRole", user.getRole());
+        session.setAttribute("userName", user.getUserName());
+
+        String redirect = "ADMIN".equals(user.getRole())
+                ? "pg-admin-dash"
+                : "pg-driver-dash";
+
+        return ResponseEntity.ok(Map.of(
+                "success",  true,
+                "role",     user.getRole(),
+                "name",     user.getUserName(),
+                "redirect", redirect
+        ));
+    }
 }
