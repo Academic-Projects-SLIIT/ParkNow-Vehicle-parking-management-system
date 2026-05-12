@@ -18,7 +18,13 @@ public class SecurityConfig {
         http
             // Allow the home page and static resources without authentication
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/register", "/login","/driver/dashboard" ,"/admin/dashboard","/h2-console/**", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/", "/home", "/register", "/login","/slot-map", "/api/slots/map",
+                                                "/driver/dashboard","/admin/dashboard", "/driver/billing",
+                                                "/admin/slots","/admin/drivers","/admin/admins","/admin/admins/**","/admin/reservations","/admin/reservations/**","/admin/vehicles","/admin/feedback",
+                                                "/driver/vehicles" ,"/register-vehicle","/reservation" ,"/api/my-vehicles/**","/driver/profile",
+                                                "/feedback", "/api/billing/**",
+                                                "/slots/available", "/booking/**",
+                                                "/h2-console/**", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
             )
             // Use form login for everything else (default login page)
@@ -28,9 +34,12 @@ public class SecurityConfig {
                 .permitAll()
             )
 
-            // Disable CSRF for H2 console, register, and login (for AJAX POSTs)
+            // Disable CSRF for H2 console, register, login, and vehicle registration (for AJAX POSTs)
             // In production, use a CSRF token instead of ignoring these endpoints.
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/register", "/login", "/auth/login"))
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/register", "/login","/slot-map", "/auth/login",
+                                                    "/register-vehicle", "/api/my-vehicles/**","/reservation","/driver/profile","/feedback", "/api/billing/**",
+                                                "/booking/**",
+                                                "/admin/slots","/admin/drivers","/admin/admins","/admin/admins/**","/admin/reservations","/admin/reservations/**","/admin/vehicles","/admin/feedback"))
             
             // Allow frames for H2 console
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));

@@ -29,14 +29,14 @@
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Main</div>
-        <button class="sidebar-item" onclick="nav('pg-driver-dash')"><span class="s-icon">🏠</span> Dashboard</button>
-        <button class="sidebar-item" onclick="nav('pg-map')"><span class="s-icon">🗺️</span> Parking Map</button>
-        <button class="sidebar-item" onclick="nav('pg-booking')"><span class="s-icon">📅</span> Book a Slot</button>
+        <button class="sidebar-item" onclick="showPage('pg-dashboard')"><span class="s-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-item" onclick="showPage('pg-slotMap')"><span class="s-icon">🗺️</span> Parking Map</button>
+        <button class="sidebar-item" onclick="showPage('pg-bookings')"><span class="s-icon">📅</span> Book a Slot</button>
         <div class="sidebar-section">Account</div>
-        <button class="sidebar-item" onclick="nav('pg-vehicles')"><span class="s-icon">🚗</span> My Vehicles</button>
-        <button class="sidebar-item active"><span class="s-icon">👤</span> My Profile</button>
-        <button class="sidebar-item" onclick="nav('pg-feedback')"><span class="s-icon">💬</span> Give Feedback</button>
-        <button class="sidebar-item"><span class="s-icon">🧾</span> Billing</button>
+        <button class="sidebar-item" onclick="showPage('pg-vehicles')"><span class="s-icon">🚗</span> My Vehicles</button>
+        <button class="sidebar-item active" onclick="showPage('pg-profile')"><span class="s-icon">👤</span> My Profile</button>
+        <button class="sidebar-item" onclick="showPage('pg-feedback')"><span class="s-icon">💬</span> Give Feedback</button>
+        <button class="sidebar-item" onclick="showPage('pg-billing')"><span class="s-icon">🧾</span> Billing</button>
       </nav>
       <div class="sidebar-bottom">
         <button class="sidebar-item" onclick="alert('Logged out')"><span class="s-icon">🚪</span> Logout</button>

@@ -18,16 +18,14 @@
       <div style="padding:16px 12px 0;"><div class="sidebar-user"><div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--teal),var(--dark-mid));color:#fff;">SA</div><div><div class="sidebar-uname">Super Admin</div><div class="sidebar-role">Administrator</div></div></div></div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Overview</div>
-        <button class="sidebar-item" onclick="nav('pg-admin-dash')"><span class="s-icon">📊</span> Dashboard</button>
-        <button class="sidebar-item" onclick="nav('pg-map')"><span class="s-icon">🗺️</span> Parking Map</button>
+        <button class="sidebar-item" onclick="showPage('pg-admin-dash')"><span class="s-icon">📊</span> Dashboard</button>
         <div class="sidebar-section">Management</div>
-        <button class="sidebar-item active"><span class="s-icon">👥</span> Driver Management</button>
-        <button class="sidebar-item" onclick="nav('pg-vehicle-mgmt')"><span class="s-icon">🚗</span> Vehicle Management</button>
-        <button class="sidebar-item" onclick="nav('pg-slot-mgmt')"><span class="s-icon">🅿️</span> Slot Management</button>
-        <button class="sidebar-item" onclick="nav('pg-admin-mgmt')"><span class="s-icon">🛡️</span> Admin Management</button>
-        <div class="sidebar-section">Operations</div>
-        <button class="sidebar-item"><span class="s-icon">📋</span> Reservations</button>
-        <button class="sidebar-item" onclick="nav('pg-feedback-mgmt')"><span class="s-icon">💬</span> Feedback <span class="s-badge">3</span></button>
+        <button class="sidebar-item active" onclick="showPage('pg-drivers')"><span class="s-icon">👥</span> Driver Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-vehicles')"><span class="s-icon">🚗</span> Vehicle Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-slots')"><span class="s-icon">🅿️</span> Slot Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-admins')"><span class="s-icon">🛡️</span> Admin Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-reservations')"><span class="s-icon">📋</span> Reservation Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-feedback')"><span class="s-icon">💬</span> Feedback Management</button>
       </nav>
       <div class="sidebar-bottom"><button class="sidebar-item" onclick="alert('Logged out')"><span class="s-icon">🚪</span> Logout</button></div>
     </aside>

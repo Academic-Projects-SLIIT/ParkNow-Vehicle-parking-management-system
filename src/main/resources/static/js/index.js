@@ -1,10 +1,4 @@
-/**
- * ParkNow - Main UI Logic
- * Purpose: Handles navigation routes and interactive elements for the home page.
- */
-
-// 1. Navigation Controller logic
-// Maps the "showPage" calls in your HTML to Spring Boot controller routes
+// Navigation Controller logic
 function showPage(pageId) {
     switch (pageId) {
         case 'pg-home':
@@ -15,6 +9,18 @@ function showPage(pageId) {
             break;
         case 'pg-register':
             window.location.href = '/register';
+            break;
+        case 'pg-live-map':
+            window.location.href = '/slot-map';
+            break;
+        case 'pg-pricing':
+            document.getElementById('pricing-section').scrollIntoView({ behavior: 'smooth' });
+            break;
+        case 'pg-about':
+            document.getElementById('about-section').scrollIntoView({ behavior: 'smooth' });
+            break;
+        case 'pg-contact':
+            document.getElementById('contact-info').scrollIntoView({ behavior: 'smooth' });
             break;
         default:
             console.warn("Route not defined for:", pageId);

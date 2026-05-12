@@ -80,4 +80,16 @@ public class UserService {
         return Optional.of(user);
     }
 
+    /** Increment vehicle count for a driver (called by VehicleService). */
+    public void incrementVehicleCount(String driverId) {
+        userRepository.findById(driverId).ifPresent(user -> {
+            if (user instanceof Driver d) {
+                d.setVehicleCount(d.getVehicleCount() + 1);
+                userRepository.update(d);
+            }
+        });
+    }
+
+    
+
 }

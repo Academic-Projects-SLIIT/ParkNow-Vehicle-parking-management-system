@@ -68,11 +68,6 @@ async function handleRegistration() {
 
         const data = await response.json();
 
-        if (!response.ok) {
-            showMsg(messageElement, data.message || 'Registration failed. Please try again.', 'error');
-            return;
-        }
-
         if (data.success) {
             // Registration worked — UserService saved a row to users.csv
             showMsg(messageElement, '✓ Account created! Redirecting to login...', 'success');

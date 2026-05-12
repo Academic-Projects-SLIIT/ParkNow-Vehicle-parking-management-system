@@ -6,17 +6,15 @@ public class Feedback {
     
     private String id;
     private String driverId;
-    private String reservationId;
     private int rating; // 1 to 5
     private String comments;
     private LocalDateTime submittedAt;
 
     public Feedback() {}
 
-    public Feedback(String id, String driverId, String reservationId, int rating, String comments) {
+    public Feedback(String id, String driverId, int rating, String comments) {
         this.id = id;
         this.driverId = driverId;
-        this.reservationId = reservationId;
         this.rating = rating;
         this.comments = comments;
         this.submittedAt = LocalDateTime.now();
@@ -28,9 +26,6 @@ public class Feedback {
     public String getDriverId() { return driverId; }
     public void setDriverId(String driverId) { this.driverId = driverId; }
 
-    public String getReservationId() { return reservationId; }
-    public void setReservationId(String reservationId) { this.reservationId = reservationId; }
-
     public int getRating() { return rating; }
     public void setRating(int rating) { this.rating = rating; }
 
@@ -40,8 +35,40 @@ public class Feedback {
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
 
-    public String toCsvRow(){
-        return String.join(",",id,driverId,reservationId,String.valueOf(rating),comments,submittedAt.toString());
+    // Polymorphic Display Renderers for UI
+    public interface RatingDisplay {
+        String render(int rating);
     }
 
+    public static class DriverRatingDisplay implements RatingDisplay {
+        @Override
+        public String render(int rating) {
+            StringBuilder stars = new StringBuilder();
+            for (int i = 0; i < 5; i++) {
+                stars.append(i < rating ? "★" : "☆");
+            }
+            return stars.toString();
+        }
+    }
+
+    public static class AdminRatingDisplay implements RatingDisplay {
+        @Override
+        public String render(int rating) {
+            return rating + " / 5";
+        }
+    }
+
+    public String toCsvRow() {
+        // Matches FeedbackRepository expected format: 
+        // id, driverId, rating, category, comment, submittedAt, status
+        return String.join(",",
+                id,
+                driverId,
+                String.valueOf(rating),
+                "General", // Default category placeholder
+                "\"" + (comments != null ? comments.replace("\"", "\"\"") : "") + "\"",
+                submittedAt != null ? submittedAt.toString() : LocalDateTime.now().toString(),
+                "PENDING" // Default status placeholder
+        );
+    }
 }

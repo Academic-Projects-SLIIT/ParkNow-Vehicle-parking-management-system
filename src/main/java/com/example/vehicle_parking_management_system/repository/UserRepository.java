@@ -25,23 +25,46 @@ public class UserRepository {
     @Value("${parknow.data.users}")
     private String filePath;
 
+    @Value("${parknow.data.admins}")
+    private String adminFilePath;
+
     /** Load all users from CSV into a list. */
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
         File file = new File(filePath);
-        if (!file.exists()) return users;
+        File adminFile = new File(adminFilePath);
+        if (!file.exists() && !adminFile.exists()) return users;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.strip();
-                if (line.isEmpty() || line.startsWith("#")) continue;
-                User user = parseLine(line);
-                if (user != null) users.add(user);
+        // Read from users.csv
+        if (file.exists()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.strip();
+                    if (line.isEmpty() || line.startsWith("#")) continue;
+                    User user = parseLine(line);
+                    if (user != null) users.add(user);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to read users.csv: " + e.getMessage(), e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read users.csv: " + e.getMessage(), e);
         }
+
+        // Read from admins.csv
+        if (adminFile.exists()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(adminFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.strip();
+                    if (line.isEmpty() || line.startsWith("#")) continue;
+                    User user = parseLine(line);
+                    if (user != null) users.add(user);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to read admins.csv: " + e.getMessage(), e);
+            }
+        }
+
         return users;
     }
 
@@ -49,6 +72,22 @@ public class UserRepository {
     public Optional<User> findByEmail(String email) {
         return findAll().stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email))
+                .findFirst();
+    }
+
+    /** Count registered drivers (users.csv rows with role DRIVER). */
+    public int countDrivers() {
+        int n = 0;
+        for (User u : findAll()) {
+            if ("DRIVER".equalsIgnoreCase(u.getRole())) n++;
+        }
+        return n;
+    }
+
+    /** Find a user by their unique ID. */
+    public Optional<User> findById(String id) {
+        return findAll().stream()
+                .filter(u -> u.getId().equals(id))
                 .findFirst();
     }
     
@@ -130,6 +169,32 @@ public class UserRepository {
 
     private int parseIntSafe(String s) {
         try { return Integer.parseInt(s); } catch (NumberFormatException e) { return 0; }
+    }
+
+    /**
+     * Update an existing user by rewriting the entire file.
+     * Finds the row with the matching ID and replaces it.
+     */
+    public boolean update(User updated) {
+        List<User> all = findAll();
+        boolean found = false;
+        for (int i = 0; i < all.size(); i++) {
+            if (all.get(i).getId().equals(updated.getId())) {
+                all.set(i, updated);
+                found = true;
+                break;
+            }
+        }
+        if (found) rewriteAll(all);
+        return found;
+    }
+
+    private void rewriteAll(List<User> users) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, false))) {
+            for (User u : users) pw.println(u.toCsvRow());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to rewrite users.csv: " + e.getMessage(), e);
+        }
     }
     
 }

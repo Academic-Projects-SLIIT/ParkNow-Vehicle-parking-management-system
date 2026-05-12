@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,23 +26,23 @@
     <aside class="sidebar">
       <div style="padding:16px 12px 0;">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--dark);">JD</div>
+          <div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--dark);" th:with="pad=${username + username}" th:text="${#strings.toUpperCase(#strings.substring(pad,0,2))}">JD</div>
           <div>
-            <div class="sidebar-uname">John Doe</div>
+            <div class="sidebar-uname" th:text="${username}">John Doe</div>
             <div class="sidebar-role">Driver Account</div>
           </div>
         </div>
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Main</div>
-        <button class="sidebar-item active" onclick="showPage('pg-driver-dash')"><span class="s-icon">🏠</span> Dashboard</button>
-        <button class="sidebar-item" onclick="showPage('pg-home')"><span class="s-icon">🗺️</span> Parking Map</button>
-        <button class="sidebar-item"><span class="s-icon">📅</span> Book a Slot</button>
+        <button class="sidebar-item active" onclick="showPage('pg-dashboard')"><span class="s-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-item" onclick="showPage('pg-slotMap')"><span class="s-icon">🗺️</span> Parking Map</button>
+        <button class="sidebar-item" onclick="showPage('pg-bookings')"><span class="s-icon">📅</span> Book a Slot</button>
         <div class="sidebar-section">Account</div>
-        <button class="sidebar-item"><span class="s-icon">🚗</span> My Vehicles</button>
-        <button class="sidebar-item"><span class="s-icon">👤</span> My Profile</button>
-        <button class="sidebar-item"><span class="s-icon">💬</span> Give Feedback</button>
-        <button class="sidebar-item"><span class="s-icon">🧾</span> Billing</button>
+        <button class="sidebar-item" onclick="showPage('pg-vehicles')"><span class="s-icon">🚗</span> My Vehicles</button>
+        <button class="sidebar-item" onclick="showPage('pg-profile')"><span class="s-icon">👤</span> My Profile</button>
+        <button class="sidebar-item" onclick="showPage('pg-feedback')"><span class="s-icon">💬</span> Give Feedback</button>
+        <button class="sidebar-item" onclick="showPage('pg-billing')"><span class="s-icon">🧾</span> Billing</button>
       </nav>
       <div class="sidebar-bottom">
         <button class="sidebar-item" onclick="showPage('pg-login')"><span class="s-icon">🚪</span> Logout</button>
@@ -55,12 +55,7 @@
       <div class="welcome-band">
         <div class="wb-bg">🚗</div>
         <div style="position:relative;z-index:1;">
-          <div class="wb-title">Good morning, John! 👋</div>
-          <div class="wb-sub">You have 1 active parking session today.</div>
-          <div class="wb-tag">
-            <span class="live-dot"></span>
-            Slot A-07 · Active since 09:30 AM
-          </div>
+          <div class="wb-title">Good morning, <span th:text="${username}">John</span>! 👋</div>
         </div>
         <div style="display:flex;gap:10px;position:relative;z-index:1;">
           <button class="btn btn-gold btn-lg">+ Book a Slot</button>
@@ -81,8 +76,8 @@
           <div class="accent-bar"></div>
           <div class="stat-icon">💰</div>
           <div class="stat-label">Pending Bill</div>
-          <div class="stat-value" style="font-size:1.4rem;">LKR 450</div>
-          <div class="stat-sub" style="margin-top:8px;"><button class="btn btn-orange btn-sm" style="width:100%;justify-content:center;">Pay Now</button></div>
+          <div class="stat-value" style="font-size:1.4rem;" th:text="${amountDueDisplay}">LKR 0</div>
+          <div class="stat-sub" style="margin-top:8px;"><button class="btn btn-orange btn-sm" onclick="showPage('pg-billing')" style="width:100%;justify-content:center;">Pay Now</button></div>
         </div>
         <div class="stat-card c-teal">
           <div class="accent-bar"></div>
@@ -96,7 +91,7 @@
           <div class="stat-icon">🚗</div>
           <div class="stat-label">Registered Vehicles</div>
           <div class="stat-value">2</div>
-          <div class="stat-sub" style="margin-top:8px;"><button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">Manage</button></div>
+          <div class="stat-sub" style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="showPage('pg-vehicles')" style="width:100%;justify-content:center;">Manage</button></div>
         </div>
       </div>
 

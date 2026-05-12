@@ -17,15 +17,14 @@
       <div style="padding:16px 12px 0;"><div class="sidebar-user"><div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--teal),var(--dark-mid));color:#fff;">SA</div><div><div class="sidebar-uname">Super Admin</div><div class="sidebar-role">Administrator</div></div></div></div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Overview</div>
-        <button class="sidebar-item" onclick="nav('pg-admin-dash')"><span class="s-icon">📊</span> Dashboard</button>
+        <button class="sidebar-item" onclick="showPage('pg-admin-dash')"><span class="s-icon">📊</span> Dashboard</button>
         <div class="sidebar-section">Management</div>
-        <button class="sidebar-item" onclick="nav('pg-driver-mgmt')"><span class="s-icon">👥</span> Driver Management</button>
-        <button class="sidebar-item" onclick="nav('pg-vehicle-mgmt')"><span class="s-icon">🚗</span> Vehicle Management</button>
-        <button class="sidebar-item" onclick="nav('pg-slot-mgmt')"><span class="s-icon">🅿️</span> Slot Management</button>
-        <button class="sidebar-item active"><span class="s-icon">🛡️</span> Admin Management</button>
-        <div class="sidebar-section">Operations</div>
-        <button class="sidebar-item"><span class="s-icon">📋</span> Reservations</button>
-        <button class="sidebar-item" onclick="nav('pg-feedback-mgmt')"><span class="s-icon">💬</span> Feedback <span class="s-badge">3</span></button>
+        <button class="sidebar-item" onclick="showPage('pg-drivers')"><span class="s-icon">👥</span> Driver Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-vehicles')"><span class="s-icon">🚗</span> Vehicle Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-slots')"><span class="s-icon">🅿️</span> Slot Management</button>
+        <button class="sidebar-item active" onclick="showPage('pg-admins')"><span class="s-icon">🛡️</span> Admin Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-reservations')"><span class="s-icon">📋</span> Reservation Management</button>
+        <button class="sidebar-item" onclick="showPage('pg-feedback')"><span class="s-icon">💬</span> Feedback Management</button>
       </nav>
       <div class="sidebar-bottom"><button class="sidebar-item" onclick="alert('Logged out')"><span class="s-icon">🚪</span> Logout</button></div>
     </aside>
@@ -37,61 +36,39 @@
       </div>
 
       <!-- Add Admin form (collapsible) -->
-      <div class="card mb-28" id="addAdminForm" style="display:none;border-color:var(--teal);border-left:4px solid var(--teal);">
+      <div class="card mb-28" id="addAdminPanel" style="display:none;border-color:var(--teal);border-left:4px solid var(--teal);">
         <div class="section-title" style="color:var(--teal);margin-bottom:20px;">New Administrator Account</div>
-        <div class="g2">
-          <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" placeholder="Admin Full Name"></div>
-          <div class="form-group"><label class="form-label">Username</label><input class="form-input" placeholder="admin_username"></div>
-          <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" placeholder="admin@parknow.com"></div>
-          <div class="form-group">
-            <label class="form-label">Admin Role</label>
-            <select class="form-input">
-              <option>Super Admin</option>
-              <option selected>Parking Admin</option>
-              <option>Finance Admin</option>
-              <option>Read-Only Admin</option>
-            </select>
+        <p id="addAdminMsg" class="form-msg" style="display:none;margin-bottom:12px;"></p>
+        <form id="adminCreateForm">
+          <div class="g2">
+            <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" name="fullName" id="adm-fullName" required placeholder="Admin Full Name" autocomplete="name"></div>
+            <div class="form-group"><label class="form-label">Username</label><input class="form-input" name="userName" id="adm-userName" required placeholder="admin_username" autocomplete="username"></div>
+            <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" name="email" id="adm-email" type="email" required placeholder="admin@parknow.com" autocomplete="email"></div>
+            <div class="form-group"><label class="form-label">Phone</label><input class="form-input" name="phone" id="adm-phone" type="tel" placeholder="+94 …"></div>
+            <div class="form-group">
+              <label class="form-label">Admin Role</label>
+              <select class="form-input" name="adminLevel" id="adm-adminLevel" required>
+                <option value="SUPER">Super Admin</option>
+                <option value="PARKING" selected>Parking Admin</option>
+                <option value="FINANCE">Finance Admin</option>
+                <option value="READONLY">Read-Only Admin</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Password</label><input class="form-input" name="password" id="adm-password" type="password" required placeholder="••••••••" autocomplete="new-password"></div>
+            <div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" id="adm-confirmPassword" type="password" required placeholder="••••••••" autocomplete="new-password"></div>
           </div>
-          <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="••••••••"></div>
-          <div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" type="password" placeholder="••••••••"></div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:20px;">
-          <button class="btn btn-teal" onclick="showToast('✅ New administrator created successfully')">Create Administrator</button>
-          <button class="btn btn-outline" onclick="toggleAddAdmin()">Cancel</button>
-        </div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button type="submit" class="btn btn-teal" id="adm-submitBtn">Create Administrator</button>
+            <button type="button" class="btn btn-outline" onclick="toggleAddAdmin()">Cancel</button>
+          </div>
+        </form>
       </div>
 
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Admin ID</th><th>Full Name</th><th>Username</th><th>Email</th><th>Role</th><th>Created</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr>
-              <td style="font-family:var(--font-display);font-weight:700;color:var(--gold);">#A001</td>
-              <td><span style="font-weight:600;">Super Admin</span></td>
-              <td>superadmin</td><td>super@parknow.com</td>
-              <td><span class="badge badge-gold">Super Admin</span></td>
-              <td>Jan 1, 2025</td><td>Today, 09:00 AM</td>
-              <td><span class="badge badge-success">Active</span></td>
-              <td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-danger btn-sm" disabled style="opacity:0.35;cursor:not-allowed;" title="Cannot delete super admin">Delete</button></div></td>
-            </tr>
-            <tr>
-              <td style="font-family:var(--font-display);font-weight:700;color:var(--teal);">#A002</td>
-              <td><span style="font-weight:600;">Park Admin</span></td>
-              <td>parkadmin</td><td>park@parknow.com</td>
-              <td><span class="badge badge-teal">Parking Admin</span></td>
-              <td>Jan 5, 2025</td><td>Today, 08:15 AM</td>
-              <td><span class="badge badge-success">Active</span></td>
-              <td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-danger btn-sm" onclick="openDeleteModal('admin','Park Admin')">Delete</button></div></td>
-            </tr>
-            <tr>
-              <td style="font-family:var(--font-display);font-weight:700;color:var(--teal);">#A003</td>
-              <td><span style="font-weight:600;">Finance Manager</span></td>
-              <td>finmgr</td><td>finance@parknow.com</td>
-              <td><span class="badge badge-orange">Finance Admin</span></td>
-              <td>Feb 12, 2025</td><td>Nov 10, 2025</td>
-              <td><span class="badge badge-success">Active</span></td>
-              <td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-danger btn-sm" onclick="openDeleteModal('admin','Finance Manager')">Delete</button></div></td>
-            </tr>
+          <thead><tr><th>Admin ID</th><th>Full Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Role</th><th>Created by</th><th>Actions</th></tr></thead>
+          <tbody id="adminsTableBody">
+            <tr><td colspan="8" style="text-align:center;color:var(--ink-muted);padding:24px;">Loading administrators…</td></tr>
           </tbody>
         </table>
       </div>

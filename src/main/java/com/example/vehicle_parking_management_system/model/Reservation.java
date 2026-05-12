@@ -6,6 +6,9 @@ public class Reservation {
 
     public enum ReservationStatus { ACTIVE, COMPLETED, CANCELLED }
 
+    /** UNPAID: counts toward driver balance until an admin marks PAID. */
+    public enum PaymentStatus { UNPAID, PAID }
+
     private String id;
     private String driverId;
     private String slotId;
@@ -14,6 +17,7 @@ public class Reservation {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private double fee;
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
 
     public Reservation() {}
 
@@ -51,8 +55,21 @@ public class Reservation {
     public double getFee() { return fee; }
     public void setFee(double fee) { this.fee = fee; }
 
-    public String toCsvRow(){
-        return String.join(id,driverId,slotId,vehicleId,status.name(),startTime.toString(),endTime.toString(),String.valueOf(fee));
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus != null ? paymentStatus : PaymentStatus.UNPAID;
     }
 
+    public String toCsvRow() {
+        return String.join(",",
+                id,
+                driverId,
+                slotId,
+                vehicleId,
+                status.name(),
+                startTime != null ? startTime.toString() : "",
+                endTime != null ? endTime.toString() : "",
+                String.valueOf(fee),
+                paymentStatus != null ? paymentStatus.name() : PaymentStatus.UNPAID.name());
+    }
 }

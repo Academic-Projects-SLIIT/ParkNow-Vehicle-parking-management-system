@@ -10,7 +10,7 @@
 
 <body>
     <div class="topbar">
-    <div class="topbar-logo" onclick="nav('pg-map')"><div class="logo-mark">P</div>ParkNow</div>
+    <div class="topbar-logo"><div class="logo-mark">P</div>ParkNow</div>
     <div class="topbar-right">
       <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--ink-muted);"><span class="live-dot"></span> Live</div>
       <button class="btn btn-teal btn-sm" id="bookSlotBtn" onclick="nav('pg-booking')" style="display:none;">📅 Book Selected</button>
@@ -22,26 +22,21 @@
       <div style="padding:16px 12px 0;"><div class="sidebar-user"><div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--dark);">JD</div><div><div class="sidebar-uname">John Doe</div><div class="sidebar-role">Driver Account</div></div></div></div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Main</div>
-        <button class="sidebar-item" onclick="nav('pg-driver-dash')"><span class="s-icon">🏠</span> Dashboard</button>
-        <button class="sidebar-item active"><span class="s-icon">🗺️</span> Parking Map</button>
-        <button class="sidebar-item" onclick="nav('pg-booking')"><span class="s-icon">📅</span> Book a Slot</button>
+        <button class="sidebar-item" onclick="showPage('pg-dashboard')"><span class="s-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-item active" onclick="showPage('pg-slotMap')"><span class="s-icon">🗺️</span> Parking Map</button>
+        <button class="sidebar-item" onclick="showPage('pg-bookings')"><span class="s-icon">📅</span> Book a Slot</button>
         <div class="sidebar-section">Account</div>
-        <button class="sidebar-item" onclick="nav('pg-vehicles')"><span class="s-icon">🚗</span> My Vehicles</button>
-        <button class="sidebar-item" onclick="nav('pg-profile')"><span class="s-icon">👤</span> My Profile</button>
-        <button class="sidebar-item" onclick="nav('pg-feedback')"><span class="s-icon">💬</span> Give Feedback</button>
+        <button class="sidebar-item" onclick="showPage('pg-vehicles')"><span class="s-icon">🚗</span> My Vehicles</button>
+        <button class="sidebar-item" onclick="showPage('pg-profile')"><span class="s-icon">👤</span> My Profile</button>
+        <button class="sidebar-item" onclick="showPage('pg-feedback')"><span class="s-icon">💬</span> Give Feedback</button>
+        <button class="sidebar-item" onclick="showPage('pg-billing')"><span class="s-icon">🧾</span> Billing</button>
       </nav>
-      <div class="sidebar-bottom"><button class="sidebar-item" onclick="alert('Logged out')"><span class="s-icon">🚪</span> Logout</button></div>
     </aside>
 
     <main class="main-content">
       <div class="page-header">
         <div class="ph-row">
           <div><h1>Live Parking Map</h1><p>Click an available slot to select it, then proceed to booking.</p></div>
-          <div style="display:flex;gap:10px;">
-            <select class="form-input" style="width:150px;padding:9px 14px;">
-              <option>All Sections</option><option>Section A</option><option>Section B</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -50,21 +45,20 @@
         <div class="map-legend">
           <div class="legend-item"><div class="legend-dot ld-available"></div>Available</div>
           <div class="legend-item"><div class="legend-dot ld-occupied"></div>Occupied</div>
-          <div class="legend-item"><div class="legend-dot ld-selected"></div>Selected</div>
           <div class="legend-item"><div class="legend-dot ld-disabled"></div>Maintenance</div>
         </div>
-        <div style="margin-left:auto;font-size:0.78rem;color:var(--ink-muted);">Last updated: just now</div>
+        <div style="margin-left:auto;font-size:0.78rem;color:var(--ink-muted);">Last updated: <span id="mapUpdated">—</span></div>
       </div>
 
       <!-- Map Canvas -->
       <div class="map-canvas">
-        <div class="map-section-label">Section A — Ground Floor</div>
+        <div class="map-section-label">Section A</div>
         <div class="slot-grid" id="gridA"></div>
         <div class="map-lane">⬅ Driving Lane ➡</div>
-        <div class="map-section-label" style="margin-top:8px;">Section B — Ground Floor</div>
+        <div class="map-section-label" style="margin-top:8px;">Section B</div>
         <div class="slot-grid" id="gridB"></div>
         <div class="map-lane">⬅ Driving Lane ➡</div>
-        <div class="map-section-label" style="margin-top:8px;">Section C — Ground Floor</div>
+        <div class="map-section-label" style="margin-top:8px;">Section C</div>
         <div class="slot-grid" id="gridC"></div>
 
         <!-- Selected slot panel -->
@@ -84,10 +78,10 @@
 
         <!-- Summary bar -->
         <div class="map-summary">
-          <div class="ms-item"><div class="ms-val">240</div><div class="ms-label">Total Slots</div></div>
-          <div class="ms-item"><div class="ms-val" style="color:var(--teal);" id="mapAvailable">153</div><div class="ms-label">Available</div></div>
-          <div class="ms-item"><div class="ms-val" style="color:var(--orange);" id="mapOccupied">87</div><div class="ms-label">Occupied</div></div>
-          <div class="ms-item"><div class="ms-val" style="color:var(--gold);">63.7%</div><div class="ms-label">Free Rate</div></div>
+          <div class="ms-item"><div class="ms-val" id="mapTotal">30</div><div class="ms-label">Total Slots</div></div>
+          <div class="ms-item"><div class="ms-val" style="color:var(--teal);" id="mapAvailable">—</div><div class="ms-label">Available</div></div>
+          <div class="ms-item"><div class="ms-val" style="color:var(--orange);" id="mapOccupied">—</div><div class="ms-label">Occupied</div></div>
+          <div class="ms-item"><div class="ms-val" style="color:var(--gold);" id="mapFreeRate">—</div><div class="ms-label">Free Rate</div></div>
         </div>
       </div>
     </main>
