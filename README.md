@@ -1,7 +1,9 @@
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/SayuruPabasara/Vehicle-parking-management-system)
+
 # Vehicle Parking Management System
 
 A robust, Spring Boot-based solution designed to streamline vehicle parking operations, slot allocation, and administrative oversight. This system leverages custom data structures and a file-based persistence layer to provide a lightweight yet powerful management experience.
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/SayuruPabasara/Vehicle-parking-management-system)
+
 
 
 ## 🚀 Features
