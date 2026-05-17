@@ -30,6 +30,35 @@ let allDrivers = [];
 let searchQuery = '';
 let statusFilter = 'all';
 
+async function deleteDriverById(id, displayName) {
+  if (!id) return;
+  const vehicleCount =
+    allDrivers.find((d) => d.id === id)?.vehicleCount ?? 0;
+  let msg = `Remove driver "${displayName}" (${id})? This cannot be undone.`;
+  if (vehicleCount > 0) {
+    msg += ` ${vehicleCount} registered vehicle(s) will also be removed.`;
+  }
+  if (!confirm(msg)) return;
+
+  try {
+    const res = await fetch('/admin/drivers/delete/' + encodeURIComponent(id), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: '',
+    });
+    const data = await res.json().catch(() => ({}));
+    if (data.success) {
+      await loadDrivers();
+    } else {
+      alert(data.message || 'Delete failed.');
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Could not delete driver.');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const searchEl = document.getElementById('driverSearch');
   const statusEl = document.getElementById('driverStatusFilter');
@@ -45,6 +74,18 @@ document.addEventListener('DOMContentLoaded', () => {
       renderDriverTable();
     });
   }
+
+  const tbody = document.getElementById('driversTableBody');
+  if (tbody) {
+    tbody.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.drv-delete');
+      if (!btn) return;
+      const id = btn.getAttribute('data-drv-id');
+      const name = btn.getAttribute('data-drv-name') || '';
+      deleteDriverById(id, name);
+    });
+  }
+
   loadDrivers();
 });
 
@@ -125,7 +166,7 @@ function renderDriverTable() {
         `<td>${statusBadge(d.status)}</td>` +
         '<td><' + 'div class="td-actions">' +
         `<button type="button" class="btn btn-outline btn-sm" disabled title="Coming soon">Edit</button>` +
-        `<button type="button" class="btn btn-danger btn-sm" disabled title="Coming soon">Delete</button>` +
+        `<button type="button" class="btn btn-danger btn-sm drv-delete" data-drv-id="${idEsc}" data-drv-name="${nameEsc}">Delete</button>` +
         '</div></td>' +
         '</tr>'
       );

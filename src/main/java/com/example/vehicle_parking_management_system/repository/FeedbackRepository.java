@@ -90,6 +90,16 @@ public class FeedbackRepository {
         return removed;
     }
 
+    /** Remove all feedback submitted by a driver. Returns number of rows removed. */
+    public int deleteByDriverId(String driverId) {
+        List<Feedback> all = findAll();
+        int before = all.size();
+        all.removeIf(f -> driverId != null && driverId.equals(f.getDriverId()));
+        int removed = before - all.size();
+        if (removed > 0) rewriteAll(all);
+        return removed;
+    }
+
     // ── Internal helpers ──────────────────────────────────────────────────────
 
     private void rewriteAll(List<Feedback> feedbacks) {

@@ -10,7 +10,7 @@
 <body>
     
     <div class="topbar">
-    <div class="topbar-logo" onclick="nav('pg-slot-mgmt')"><div class="logo-mark">P</div>ParkNow</div>
+    <div class="topbar-logo" onclick="showPage('pg-slots')"><div class="logo-mark">P</div>ParkNow</div>
     <div class="topbar-right"><span class="badge badge-gold">Administrator</span><button class="btn btn-outline btn-sm" type="button" onclick="logout()">Logout</button></div>
   </div>
   <div class="app-shell">
@@ -33,32 +33,75 @@
     <main class="main-content">
       <div class="admin-page-header">
         <div><div class="admin-page-title">Slot Management</div><div class="admin-page-sub">Edit slot configurations, rates, and availability status.</div></div>
-        <div style="display:flex;gap:10px;">
-          <button class="btn btn-outline btn-sm" onclick="nav('pg-map')">🗺️ View Map</button>
-        </div>
+        <button class="btn btn-teal" type="button" onclick="toggleEditSlot()">+ Edit Slot</button>
       </div>
+
+      <div class="card mb-28" id="editSlotPanel" style="display:none;border-color:var(--teal);border-left:4px solid var(--teal);">
+        <div class="section-title" style="color:var(--teal);margin-bottom:20px;">Edit Parking Slot</div>
+        <p id="editSlotMsg" class="form-msg" style="display:none;margin-bottom:12px;"></p>
+        <form id="slotEditForm">
+          <div class="g2">
+            <div class="form-group">
+              <label class="form-label">Select Slot</label>
+              <select class="form-input" id="editSlotSelect" required>
+                <option value="">— Choose a slot —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Section</label>
+              <input class="form-input" id="editSlotSection" type="text" readonly placeholder="—">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Floor</label>
+              <input class="form-input" id="editSlotFloor" type="text" readonly placeholder="—">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Vehicle</label>
+              <input class="form-input" id="editSlotVehicle" type="text" readonly placeholder="—">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-input" id="editSlotStatus" name="status" required>
+                <option value="AVAILABLE">Available</option>
+                <option value="OCCUPIED">Occupied</option>
+                <option value="MAINTENANCE">Maintenance</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rate per hour (LKR)</label>
+              <input class="form-input" id="editSlotRate" name="hourlyRate" type="number" min="0" step="1" required placeholder="150">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button type="submit" class="btn btn-teal" id="editSlotSubmitBtn">Save Changes</button>
+            <button type="button" class="btn btn-outline" onclick="toggleEditSlot()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
       <div class="g4 mb-28">
-        <div class="stat-card c-dark"><div class="accent-bar"></div><div class="stat-label">Total Slots</div><div class="stat-value">240</div></div>
-        <div class="stat-card c-teal"><div class="accent-bar"></div><div class="stat-label">Available</div><div class="stat-value">153</div></div>
-        <div class="stat-card c-orange"><div class="accent-bar"></div><div class="stat-label">Occupied</div><div class="stat-value">87</div></div>
-        <div class="stat-card c-danger"><div class="accent-bar"></div><div class="stat-label">Maintenance</div><div class="stat-value">4</div></div>
+        <div class="stat-card c-dark"><div class="accent-bar"></div><div class="stat-label">Total Slots</div><div class="stat-value" id="statTotalSlots">—</div></div>
+        <div class="stat-card c-teal"><div class="accent-bar"></div><div class="stat-label">Available</div><div class="stat-value" id="statAvailableSlots">—</div></div>
+        <div class="stat-card c-orange"><div class="accent-bar"></div><div class="stat-label">Occupied</div><div class="stat-value" id="statOccupiedSlots">—</div></div>
+        <div class="stat-card c-danger"><div class="accent-bar"></div><div class="stat-label">Maintenance</div><div class="stat-value" id="statMaintenanceSlots">—</div></div>
       </div>
       <div class="filter-bar">
-        <div class="search-wrap"><div class="search-bar"><span>🔍</span><input type="text" placeholder="Search by slot ID..."></div></div>
-        <select class="form-input" style="width:140px;padding:9px 14px;"><option>All Sections</option><option>Section A</option><option>Section B</option><option>Section C</option></select>
-        <select class="form-input" style="width:150px;padding:9px 14px;"><option>All Status</option><option>Available</option><option>Occupied</option><option>Maintenance</option></select>
-        <select class="form-input" style="width:140px;padding:9px 14px;"><option>All Types</option><option>Standard</option><option>Large</option><option>Disabled</option></select>
+        <div class="search-wrap"><div class="search-bar"><span>🔍</span><input type="text" id="slotSearch" placeholder="Search by slot ID..."></div></div>
+        <select class="form-input" id="slotSectionFilter" style="width:140px;padding:9px 14px;">
+          <option value="all">All Sections</option>
+        </select>
+        <select class="form-input" id="slotStatusFilter" style="width:150px;padding:9px 14px;">
+          <option value="all">All Status</option>
+          <option value="AVAILABLE">Available</option>
+          <option value="OCCUPIED">Occupied</option>
+          <option value="MAINTENANCE">Maintenance</option>
+        </select>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Slot ID</th><th>Section</th><th>Type</th><th>Floor</th><th>Status</th><th>Current Vehicle</th><th>Rate / hr</th><th>Last Updated</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr><td style="font-family:var(--font-display);font-weight:700;">A-01</td><td>A</td><td>Standard</td><td>Ground</td><td><span class="badge badge-success">Available</span></td><td>—</td><td>LKR 150</td><td>Just now</td><td><button class="btn btn-outline btn-sm" onclick="openEditSlot('A-01')">Edit</button></td></tr>
-            <tr><td style="font-family:var(--font-display);font-weight:700;">A-07</td><td>A</td><td>Standard</td><td>Ground</td><td><span class="badge badge-danger">Occupied</span></td><td>CAR-ABC-1234</td><td>LKR 150</td><td>09:30 AM</td><td><button class="btn btn-outline btn-sm" onclick="openEditSlot('A-07')">Edit</button></td></tr>
-            <tr><td style="font-family:var(--font-display);font-weight:700;">A-15</td><td>A</td><td>Large</td><td>Ground</td><td><span class="badge badge-success">Available</span></td><td>—</td><td>LKR 200</td><td>1h ago</td><td><button class="btn btn-outline btn-sm" onclick="openEditSlot('A-15')">Edit</button></td></tr>
-            <tr><td style="font-family:var(--font-display);font-weight:700;">B-03</td><td>B</td><td>Standard</td><td>Ground</td><td><span class="badge badge-danger">Occupied</span></td><td>SUV-DEF-9012</td><td>LKR 150</td><td>08:45 AM</td><td><button class="btn btn-outline btn-sm" onclick="openEditSlot('B-03')">Edit</button></td></tr>
-            <tr><td style="font-family:var(--font-display);font-weight:700;">B-08</td><td>B</td><td>Disabled</td><td>Ground</td><td><span class="badge badge-warning">Maintenance</span></td><td>—</td><td>LKR 100</td><td>Nov 9</td><td><button class="btn btn-outline btn-sm" onclick="openEditSlot('B-08')">Edit</button></td></tr>
-            <tr><td style="font-family:var(--font-display);font-weight:700;">C-04</td><td>C</td><td>Standard</td><td>Ground</td><td><span class="badge badge-success">Available</span></td><td>—</td><td>LKR 150</td><td>2h ago</td><td><button class="btn btn-outline btn-sm" onclick="openEditSlot('C-04')">Edit</button></td></tr>
+          <thead><tr><th>Slot ID</th><th>Section</th><th>Floor</th><th>Status</th><th>Current Vehicle</th><th>Rate / hr</th><th>Last Updated</th></tr></thead>
+          <tbody id="slotsTableBody">
+            <tr><td colspan="9" style="text-align:center;color:var(--ink-muted);padding:24px;">Loading slots…</td></tr>
           </tbody>
         </table>
       </div>

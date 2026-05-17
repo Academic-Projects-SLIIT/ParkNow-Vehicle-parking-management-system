@@ -19,8 +19,8 @@ public class SecurityConfig {
             // Allow the home page and static resources without authentication
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/register", "/login", "/logout", "/slot-map", "/api/slots/map",
-                                                "/driver/dashboard","/admin/dashboard", "/driver/billing","/submit-feedback",
-                                                "/admin/slots","/admin/drivers","/admin/drivers/**","/admin/admins","/admin/admins/**","/admin/reservations","/admin/reservations/**","/admin/vehicles","/admin/feedback",
+                                                "/driver/dashboard","/admin/dashboard", "/driver/billing","/submit-feedback","/admin/logs/data",
+                                                "/admin/slots","/admin/slots/**","/admin/drivers","/admin/drivers/**","/admin/admins","/admin/admins/**","/admin/reservations","/admin/reservations/**","/admin/vehicles","/admin/vehicles/**","/admin/feedback",
                                                 "/driver/vehicles" ,"/register-vehicle","/reservation" ,"/api/my-vehicles/**","/driver/profile",
                                                 "/feedback", "/api/billing/**",
                                                 "/slots/available", "/booking/**",
@@ -39,8 +39,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/register", "/login", "/logout", "/slot-map", "/auth/login",
                                                     "/register-vehicle", "/api/my-vehicles/**","/reservation","/driver/profile","/feedback", "/api/billing/**",
                                                 "/booking/**",
-                                                "/admin/slots","/admin/drivers","/admin/drivers/**","/admin/admins","/admin/admins/**","/admin/reservations","/admin/reservations/**","/admin/vehicles","/admin/feedback",
-                                                "/submit-feedback"))
+                                                "/admin/slots","/admin/slots/**","/admin/drivers","/admin/drivers/**","/admin/admins","/admin/admins/**","/admin/reservations","/admin/reservations/**","/admin/vehicles","/admin/vehicles/**","/admin/feedback",
+                                                "/submit-feedback","/admin/logs/data"))
             
             // Allow frames for H2 console
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));

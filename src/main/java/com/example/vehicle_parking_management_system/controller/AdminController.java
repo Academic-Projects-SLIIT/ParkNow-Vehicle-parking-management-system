@@ -1,9 +1,13 @@
 package com.example.vehicle_parking_management_system.controller;
 
 import com.example.vehicle_parking_management_system.model.Admin;
+import com.example.vehicle_parking_management_system.model.ParkingSlot;
 import com.example.vehicle_parking_management_system.service.AdminService;
+import com.example.vehicle_parking_management_system.service.SlotService;
 import com.example.vehicle_parking_management_system.service.UserService;
+import com.example.vehicle_parking_management_system.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +33,20 @@ public class AdminController {
 
     private final AdminService adminService;
     private final UserService userService;
+    private final VehicleService vehicleService;
+    private final SlotService slotService;
 
     @Value("${parknow.data.activity-log}")
     private String activityLogPath;
 
-    public AdminController(AdminService adminService, UserService userService) {
+    public AdminController(AdminService adminService,
+                           UserService userService,
+                           VehicleService vehicleService,
+                           SlotService slotService) {
         this.adminService = adminService;
         this.userService = userService;
+        this.vehicleService = vehicleService;
+        this.slotService = slotService;
     }
 
     // ── Auth helpers ──────────────────────────────────────────────────────────
@@ -55,8 +66,6 @@ public class AdminController {
     }
 
     // ── Dashboard ─────────────────────────────────────────────────────────────
-
-    
 
     // ── Admin account management ──────────────────────────────────────────────
 
@@ -163,11 +172,100 @@ public class AdminController {
         return ResponseEntity.ok(userService.getDriverManagementData());
     }
 
+    /**
+     * POST /admin/drivers/delete/{id}
+     * Removes driver from users.csv and cascades related vehicles, reservations, and feedback.
+     */
+    @PostMapping("/admin/drivers/delete/{id}")
+    public ResponseEntity<?> deleteDriver(@PathVariable String id,
+                                          HttpSession session) {
+        if (!isAdmin(session)) return forbidden();
+
+        boolean deleted = userService.deleteDriver(id, adminId(session));
+        return ResponseEntity.ok(Map.of(
+                "success", deleted,
+                "message", deleted ? "Driver deleted." : "Driver not found."
+        ));
+    }
+
+    // ── Slot oversight ──────────────────────────────────────────────────────
+
+    /**
+     * GET /admin/slots/data
+     * Returns slot list and summary stats for the admin slot-management UI.
+     */
+    @GetMapping("/admin/slots/data")
+    public ResponseEntity<?> slotManagementData(HttpSession session) {
+        if (!isAdmin(session)) return forbidden();
+        return ResponseEntity.ok(slotService.getSlotManagementData());
+    }
+
+    /**
+     * POST /admin/slots/update
+     * Updates slot status and hourly rate in slots.csv.
+     */
+    @PostMapping("/admin/slots/update")
+    public ResponseEntity<?> updateSlot(@RequestParam String slotId,
+                                        @RequestParam String status,
+                                        @RequestParam double hourlyRate,
+                                        HttpSession session) {
+        if (!isAdmin(session)) return forbidden();
+
+        try {
+            ParkingSlot.SlotStatus newStatus =
+                    ParkingSlot.SlotStatus.valueOf(status.trim().toUpperCase());
+            boolean updated = slotService.updateSlot(
+                    slotId, newStatus, hourlyRate, adminId(session));
+            return ResponseEntity.ok(Map.of(
+                    "success", updated,
+                    "message", updated ? "Slot updated." : "Slot not found."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Invalid status. Use AVAILABLE, OCCUPIED, or MAINTENANCE."));
+        }
+    }
+
+    // ── Vehicle oversight ─────────────────────────────────────────────────────
+
+    /**
+     * GET /admin/vehicles/data
+     * Returns vehicle list and summary stats for the admin vehicle-management UI.
+     */
+    @GetMapping("/admin/vehicles/data")
+    public ResponseEntity<?> vehicleManagementData(HttpSession session) {
+        if (!isAdmin(session)) return forbidden();
+        return ResponseEntity.ok(vehicleService.getVehicleManagementData());
+    }
+
+    /**
+     * POST /admin/vehicles/delete/{id}
+     * Removes a vehicle from vehicles.csv.
+     */
+    @PostMapping("/admin/vehicles/delete/{id}")
+    public ResponseEntity<?> deleteVehicle(@PathVariable String id,
+                                           HttpSession session) {
+        if (!isAdmin(session)) return forbidden();
+
+        boolean deleted = vehicleService.deleteVehicleByAdmin(id, adminId(session));
+        return ResponseEntity.ok(Map.of(
+                "success", deleted,
+                "message", deleted ? "Vehicle deleted." : "Vehicle not found."
+        ));
+    }
+
     // ── Activity log ──────────────────────────────────────────────────────────
 
     /**
      * GET /admin/logs
      * Returns the system activity log lines (newest first).
      */
-    
+    @GetMapping("/admin/logs/data")
+    public ResponseEntity<?> getActivityLogs(HttpSession session) {
+        if (!isAdmin(session)) return forbidden();
+        List<String> logs = adminService.getActivityLog(activityLogPath);
+        // Return the most recent 10 events for the dashboard
+        return ResponseEntity.ok(logs.stream().limit(10).toList());
+    }
 }

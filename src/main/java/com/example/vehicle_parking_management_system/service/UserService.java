@@ -1,7 +1,10 @@
 package com.example.vehicle_parking_management_system.service;
 
 import com.example.vehicle_parking_management_system.model.Driver;
+import com.example.vehicle_parking_management_system.model.Reservation;
 import com.example.vehicle_parking_management_system.model.User;
+import com.example.vehicle_parking_management_system.repository.FeedbackRepository;
+import com.example.vehicle_parking_management_system.repository.ReservationRepository;
 import com.example.vehicle_parking_management_system.repository.UserRepository;
 import com.example.vehicle_parking_management_system.repository.VehicleRepository;
 import com.example.vehicle_parking_management_system.util.ActivityLogger;
@@ -29,9 +32,12 @@ import java.util.*;
 @Service
 public class UserService {
 
-    private final UserRepository    userRepository;
-    private final VehicleRepository vehicleRepository;
-    private final ActivityLogger    activityLogger;
+    private final UserRepository        userRepository;
+    private final VehicleRepository     vehicleRepository;
+    private final ReservationRepository reservationRepository;
+    private final FeedbackRepository    feedbackRepository;
+    private final SlotService           slotService;
+    private final ActivityLogger        activityLogger;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Value("${parknow.data.activity-log:default_activity.log}")
@@ -42,10 +48,16 @@ public class UserService {
 
     public UserService(UserRepository userRepository,
                        VehicleRepository vehicleRepository,
+                       ReservationRepository reservationRepository,
+                       FeedbackRepository feedbackRepository,
+                       SlotService slotService,
                        ActivityLogger activityLogger) {
-        this.userRepository  = userRepository;
-        this.vehicleRepository = vehicleRepository;
-        this.activityLogger  = activityLogger;
+        this.userRepository        = userRepository;
+        this.vehicleRepository     = vehicleRepository;
+        this.reservationRepository = reservationRepository;
+        this.feedbackRepository    = feedbackRepository;
+        this.slotService           = slotService;
+        this.activityLogger        = activityLogger;
     }
 
     // register a driver
@@ -200,6 +212,38 @@ public class UserService {
             if (!ts.toLocalDate().isBefore(cutoff)) count++;
         }
         return count;
+    }
+
+    /**
+     * Admin deletes a driver and related data (vehicles, reservations, feedback).
+     * Active reservations release their parking slots first.
+     */
+    public boolean deleteDriver(String driverId, String adminId) {
+        Optional<User> userOpt = userRepository.findById(driverId);
+        if (userOpt.isEmpty() || !(userOpt.get() instanceof Driver driver)) {
+            return false;
+        }
+
+        for (Reservation r : reservationRepository.findByDriverId(driverId)) {
+            if (r.getStatus() == Reservation.ReservationStatus.ACTIVE) {
+                try {
+                    slotService.releaseSlot(r.getSlotId(), adminId);
+                } catch (RuntimeException ignored) {
+                    // Slot may already be available; continue cleanup
+                }
+            }
+        }
+        reservationRepository.deleteByDriverId(driverId);
+
+        vehicleRepository.deleteByOwnerId(driverId);
+        feedbackRepository.deleteByDriverId(driverId);
+
+        boolean deleted = userRepository.deleteDriverById(driverId);
+        if (deleted) {
+            activityLogger.log(adminId, "ADMIN", "DRIVER_DELETED",
+                    "Removed driver " + driver.getEmail() + " (" + driverId + ")");
+        }
+        return deleted;
     }
 
 }

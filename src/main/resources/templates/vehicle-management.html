@@ -34,29 +34,32 @@
       <div class="admin-page-header">
         <div><div class="admin-page-title">Vehicle Management</div><div class="admin-page-sub">All vehicles registered in the system.</div></div>
         <div style="display:flex;gap:10px;">
-          <button class="btn btn-outline btn-sm">📤 Export</button>
-          <button class="btn btn-teal btn-sm" onclick="nav('pg-vehicles')">+ Register Vehicle</button>
+          <button class="btn btn-outline btn-sm" type="button" disabled>📤 Export</button>
+          <button class="btn btn-teal btn-sm" type="button" disabled title="Drivers register vehicles from their account">+ Register Vehicle</button>
         </div>
       </div>
       <div class="g4 mb-28">
-        <div class="stat-card c-gold"><div class="accent-bar"></div><div class="stat-label">Total Vehicles</div><div class="stat-value">2,051</div></div>
-        <div class="stat-card c-teal"><div class="accent-bar"></div><div class="stat-label">Active</div><div class="stat-value">2,003</div></div>
-        <div class="stat-card c-orange"><div class="accent-bar"></div><div class="stat-label">Flagged</div><div class="stat-value">12</div></div>
-        <div class="stat-card c-green"><div class="accent-bar"></div><div class="stat-label">Types</div><div class="stat-value">5</div><div class="stat-sub">Sedan, SUV, Van, Moto, Truck</div></div>
+        <div class="stat-card c-gold"><div class="accent-bar"></div><div class="stat-label">Total Vehicles</div><div class="stat-value" id="statTotalVehicles">—</div></div>
+        <div class="stat-card c-teal"><div class="accent-bar"></div><div class="stat-label">Active</div><div class="stat-value" id="statActiveVehicles">—</div></div>
+        <div class="stat-card c-orange"><div class="accent-bar"></div><div class="stat-label">Flagged</div><div class="stat-value" id="statFlaggedVehicles">—</div><div class="stat-sub">Missing or non-driver owner</div></div>
+        <div class="stat-card c-green"><div class="accent-bar"></div><div class="stat-label">Types</div><div class="stat-value" id="statTypeCount">—</div><div class="stat-sub" id="statTypeLabels">—</div></div>
       </div>
       <div class="filter-bar">
-        <div class="search-wrap"><div class="search-bar"><span>🔍</span><input type="text" placeholder="Search by plate number or owner..."></div></div>
-        <select class="form-input" style="width:140px;padding:9px 14px;"><option>All Types</option><option>Sedan</option><option>SUV</option><option>Van</option><option>Motorcycle</option><option>Truck</option></select>
-        <select class="form-input" style="width:140px;padding:9px 14px;"><option>All Status</option><option>Active</option><option>Flagged</option></select>
+        <div class="search-wrap"><div class="search-bar"><span>🔍</span><input type="text" id="vehicleSearch" placeholder="Search by plate number or owner..."></div></div>
+        <select class="form-input" id="vehicleTypeFilter" style="width:140px;padding:9px 14px;">
+          <option value="all">All Types</option>
+        </select>
+        <select class="form-input" id="vehicleStatusFilter" style="width:140px;padding:9px 14px;">
+          <option value="all">All Status</option>
+          <option value="ACTIVE">Active</option>
+          <option value="FLAGGED">Flagged</option>
+        </select>
       </div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Vehicle ID</th><th>Plate Number</th><th>Type</th><th>Color</th><th>Owner</th><th>Owner ID</th><th>Registered</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr><td><span style="font-family:var(--font-display);font-weight:700;color:var(--teal);">#V001</span></td><td><span style="font-family:var(--font-display);font-weight:700;">CAR-ABC-1234</span></td><td>Sedan</td><td>⬛ Black</td><td>John Doe</td><td>#D001</td><td>Jan 15, 2025</td><td><span class="badge badge-success">Active</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-danger btn-sm" onclick="openDeleteModal('vehicle','CAR-ABC-1234')">Delete</button></div></td></tr>
-            <tr><td><span style="font-family:var(--font-display);font-weight:700;color:var(--teal);">#V002</span></td><td><span style="font-family:var(--font-display);font-weight:700;">SUV-DEF-9012</span></td><td>SUV</td><td>🔵 Blue</td><td>Sarah Kim</td><td>#D002</td><td>Feb 3, 2025</td><td><span class="badge badge-success">Active</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-danger btn-sm" onclick="openDeleteModal('vehicle','SUV-DEF-9012')">Delete</button></div></td></tr>
-            <tr><td><span style="font-family:var(--font-display);font-weight:700;color:var(--teal);">#V003</span></td><td><span style="font-family:var(--font-display);font-weight:700;">VAN-XYZ-5678</span></td><td>Van</td><td>⬜ White</td><td>John Doe</td><td>#D001</td><td>Mar 22, 2025</td><td><span class="badge badge-success">Active</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-danger btn-sm" onclick="openDeleteModal('vehicle','VAN-XYZ-5678')">Delete</button></div></td></tr>
-            <tr><td><span style="font-family:var(--font-display);font-weight:700;color:var(--teal);">#V004</span></td><td><span style="font-family:var(--font-display);font-weight:700;">CAR-GHI-3456</span></td><td>Sedan</td><td>🔴 Red</td><td>Ahmed Ali</td><td>#D003</td><td>Mar 10, 2025</td><td><span class="badge badge-warning">Flagged</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-danger btn-sm" onclick="openDeleteModal('vehicle','CAR-GHI-3456')">Delete</button></div></td></tr>
+          <tbody id="vehiclesTableBody">
+            <tr><td colspan="9" style="text-align:center;color:var(--ink-muted);padding:24px;">Loading vehicles…</td></tr>
           </tbody>
         </table>
       </div>

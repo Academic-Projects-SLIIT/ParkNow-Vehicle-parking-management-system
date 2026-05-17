@@ -82,6 +82,16 @@ public class VehicleRepository {
         return removed;
     }
 
+    /** Remove all vehicles owned by a driver. Returns number of rows removed. */
+    public int deleteByOwnerId(String ownerId) {
+        List<Vehicle> all = findAll();
+        int before = all.size();
+        all.removeIf(v -> ownerId != null && ownerId.equals(v.getOwnerId()));
+        int removed = before - all.size();
+        if (removed > 0) rewriteAll(all);
+        return removed;
+    }
+
     public boolean update(Vehicle updated) {
         List<Vehicle> all = findAll();
         boolean found = false;
