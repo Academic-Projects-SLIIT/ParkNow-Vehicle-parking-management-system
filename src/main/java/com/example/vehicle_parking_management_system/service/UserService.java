@@ -1,0 +1,95 @@
+package com.example.vehicle_parking_management_system.service;
+
+import com.example.vehicle_parking_management_system.model.Driver;
+import com.example.vehicle_parking_management_system.model.User;
+import com.example.vehicle_parking_management_system.repository.UserRepository;
+import com.example.vehicle_parking_management_system.util.ActivityLogger;
+import com.example.vehicle_parking_management_system.util.IdGenerator;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * UserService — business logic for User Management
+ *
+ * Abstraction: exposes high-level operations; callers don't need to know
+ * how passwords are hashed or how the CSV is structured.
+ */
+@Service
+public class UserService {
+
+    private final UserRepository    userRepository;
+    private final ActivityLogger    activityLogger;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public UserService(UserRepository userRepository, ActivityLogger activityLogger) {
+        this.userRepository  = userRepository;
+        this.activityLogger  = activityLogger;
+    }
+
+    // register a driver
+    public Driver register(String fullName, String userName, String email, String phone, String password) {
+        
+        //check if already registered
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email already registered: " + email);
+        }
+
+        Driver driver = new Driver(
+                IdGenerator.next("USR"),
+                fullName,
+                userName,
+                email,
+                phone,
+                passwordEncoder.encode(password),
+                "LICENSE-" + IdGenerator.next("LIC"),
+                0
+        );
+
+        userRepository.save(driver);
+
+        activityLogger.log(driver.getId(), "DRIVER", "USER_REGISTERED",
+                "New driver: " + email);
+
+        return driver;
+    }
+
+    // authenticate user by email and password
+    public Optional<User> login(String email,String password){
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        //not found
+        if (userOpt.isEmpty()) 
+            return Optional.empty();
+
+        User user = userOpt.get();
+
+        //password doesn't match
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+
+            activityLogger.log(user.getId(), user.getRole(), "LOGIN_FAILED","Bad password for " + email);
+
+            return Optional.empty();
+        }
+        
+        activityLogger.log(user.getId(), user.getRole(), "USER_LOGIN", email);
+        
+        return Optional.of(user);
+    }
+
+    /** Increment vehicle count for a driver (called by VehicleService). */
+    public void incrementVehicleCount(String driverId) {
+        userRepository.findById(driverId).ifPresent(user -> {
+            if (user instanceof Driver d) {
+                d.setVehicleCount(d.getVehicleCount() + 1);
+                userRepository.update(d);
+            }
+        });
+    }
+
+    
+
+}
