@@ -63,11 +63,15 @@ public class HomeController {
         return "admin-dashboard.html";
     }
     @GetMapping("/driver/vehicles")
-    public String driverVehicles() {
+    public String driverVehicles(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "vehicle-register.html";
     }
     @GetMapping("/reservation")
-    public String reservation() {
+    public String reservation(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "slot-booking.html";
     }
     @GetMapping("/slot-map")
@@ -77,39 +81,57 @@ public class HomeController {
         return "slot-map.html";
     }
     @GetMapping("/driver/profile")
-    public String profile() {
+    public String profile(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "driver-profile.html";
     }
     @GetMapping("/feedback")
-    public String feedback() {
+    public String feedback(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "feedback-submission.html";
     }
     @GetMapping("/driver/billing")
-    public String billing() {
+    public String billing(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "billing.html";
     }
     @GetMapping("/admin/slots")
-    public String adminSlotMap() {
+    public String adminSlotMap(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "slot-management.html";
     }
     @GetMapping("/admin/drivers")
-    public String adminDrivers() {
+    public String adminDrivers(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "driver-management.html";
     }
     @GetMapping("/admin/admins")
-    public String adminAdmins() {
+    public String adminAdmins(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "admin-management.html";
     }
     @GetMapping("/admin/reservations")
-    public String adminReservations() {
+    public String adminReservations(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "reservation-management.html";
     }
     @GetMapping("/admin/vehicles")
-    public String adminVehicles() {
+    public String adminVehicles(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "vehicle-management.html";
     }
     @GetMapping("/admin/feedback")
-    public String adminFeedbacks() {
+    public String adminFeedbacks(HttpSession session, Model model) {
+        Object name = session.getAttribute("userName");
+        model.addAttribute("username", name != null ? name.toString() : "Guest");
         return "feedback-management.html";
     }
     
