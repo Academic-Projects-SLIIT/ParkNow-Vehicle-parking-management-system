@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,9 +26,9 @@
     <aside class="sidebar">
       <div style="padding:16px 12px 0;">
         <div class="sidebar-user">
-          <div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--dark);">JD</div>
+          <div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--dark);" th:with="pad=${username + username}" th:text="${#strings.toUpperCase(#strings.substring(pad,0,2))}">JD</div>
           <div>
-            <div class="sidebar-uname">John Doe</div>
+            <div class="sidebar-uname" th:text="${username}">John Doe</div>
             <div class="sidebar-role">Driver Account</div>
           </div>
         </div>
@@ -44,9 +44,7 @@
         <button class="sidebar-item" onclick="showPage('pg-feedback')"><span class="s-icon">💬</span> Give Feedback</button>
         <button class="sidebar-item active" onclick="showPage('pg-billing')"><span class="s-icon">🧾</span> Billing</button>
       </nav>
-      <div class="sidebar-bottom">
-        <button class="sidebar-item" type="button" onclick="logout()"><span class="s-icon">🚪</span> Logout</button>
-      </div>
+      
     </aside>
 
     <!-- Main -->
@@ -86,7 +84,7 @@
 
         <div class="g2" style="grid-template-columns: 1.5fr 1fr;">
             
-            <div class="gap-20">
+           
                 
             <section class="card">
               <h3 class="section-title">Select Payment Method</h3>
@@ -130,7 +128,6 @@
                                     <th>Slot</th>
                                     <th>Amount</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="history-body">
@@ -138,7 +135,7 @@
                         </table>
                     </div>
                 </section>
-            </div>
+          
 
             
         </div>

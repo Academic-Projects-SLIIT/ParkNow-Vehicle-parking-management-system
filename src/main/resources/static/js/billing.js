@@ -132,7 +132,6 @@ async function fetchBillingDetails() {
               `<td>${escapeHtml(String(h.slot || '—'))}</td>` +
               `<td>${formatLkr(h.amount)}</td>` +
               `<td>${badge}</td>` +
-              '<td><span class="badge badge-dark">—</span></td>' +
               '</tr>'
             );
           })
