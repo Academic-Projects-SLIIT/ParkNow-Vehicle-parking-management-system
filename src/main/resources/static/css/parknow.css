@@ -820,3 +820,12 @@ tbody tr:hover td { background: #f4fbfd; }
   color: #ea580c;
 }
 .profile-hero-meta{font-size:0.85rem;color:rgba(255,255,255,0.5);}
+
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-bar .search-wrap{flex:1;min-width:220px;max-width:360px;}
+
+/* SEARCH BAR */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 14px;transition:all 0.2s;}
+.search-bar:focus-within{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(43,187,216,0.12);}
+.search-bar input{border:none;background:transparent;outline:none;font-family:var(--font-body);font-size:0.9rem;color:var(--ink);width:100%;}
+.search-bar input::placeholder{color:var(--ink-muted);}
