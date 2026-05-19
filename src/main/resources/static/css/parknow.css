@@ -819,3 +819,4 @@ tbody tr:hover td { background: #f4fbfd; }
   background: rgba(249, 115, 22, 0.1);
   color: #ea580c;
 }
+.profile-hero-meta{font-size:0.85rem;color:rgba(255,255,255,0.5);}
