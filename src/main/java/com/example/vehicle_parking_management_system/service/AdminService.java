@@ -89,6 +89,57 @@ public class AdminService {
     }
 
 
+    public Admin updateAdmin(String targetId, String fullName, String userName, String email,
+                             String phone, Admin.AdminLevel level, String newPassword,
+                             String requesterId) {
+        if (fullName == null || fullName.isBlank()) {
+            throw new IllegalArgumentException("Full name is required.");
+        }
+        if (userName == null || userName.isBlank()) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is required.");
+        }
+        if (level == null) {
+            throw new IllegalArgumentException("Admin role is required.");
+        }
+
+        Admin admin = adminRepository.findById(targetId)
+                .orElseThrow(() -> new IllegalArgumentException("Administrator not found."));
+
+        String emailNorm = email.trim();
+        Optional<User> emailOwner = userRepository.findByEmail(emailNorm);
+        if (emailOwner.isPresent() && !emailOwner.get().getId().equals(targetId)) {
+            throw new IllegalArgumentException("Email already registered: " + emailNorm);
+        }
+
+        String userNorm = userName.trim();
+        for (User u : userRepository.findAll()) {
+            if (u.getUserName().equalsIgnoreCase(userNorm) && !u.getId().equals(targetId)) {
+                throw new IllegalArgumentException("Username already taken: " + userNorm);
+            }
+        }
+
+        admin.setFullName(fullName.trim());
+        admin.setUserName(userNorm);
+        admin.setEmail(emailNorm);
+        admin.setPhone(phone == null || phone.isBlank() ? "-" : phone.trim());
+        admin.setAdminLevel(level);
+
+        if (newPassword != null && !newPassword.isBlank()) {
+            admin.setPassword(passwordEncoder.encode(newPassword));
+        }
+
+        if (!adminRepository.update(admin)) {
+            throw new IllegalArgumentException("Failed to save administrator.");
+        }
+
+        activityLogger.log(requesterId, "ADMIN", "ADMIN_UPDATED",
+                "Admin: " + targetId + " (" + emailNorm + ")");
+        return admin;
+    }
+
     public boolean deleteAdmin(String targetId, String requesterId) {
         if (targetId.equals(requesterId)) {
             throw new IllegalArgumentException("An admin cannot delete their own account.");

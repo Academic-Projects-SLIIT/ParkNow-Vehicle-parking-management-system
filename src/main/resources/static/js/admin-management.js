@@ -33,6 +33,8 @@ function showPage(pageId){
     }
 }
 
+let adminRows = [];
+
 function toggleAddAdmin() {
   const panel = document.getElementById('addAdminPanel');
   if (!panel) return;
@@ -43,6 +45,84 @@ function toggleAddAdmin() {
     msg.style.display = 'none';
     msg.textContent = '';
   }
+  if (hidden) {
+    const editPanel = document.getElementById('editAdminPanel');
+    if (editPanel) editPanel.style.display = 'none';
+  }
+}
+
+function toggleEditAdmin() {
+  const panel = document.getElementById('editAdminPanel');
+  if (!panel) return;
+  const hidden = panel.style.display === 'none' || panel.style.display === '';
+  panel.style.display = hidden ? 'block' : 'none';
+  const msg = document.getElementById('editAdminMsg');
+  if (msg) {
+    msg.style.display = 'none';
+    msg.textContent = '';
+  }
+  if (hidden) {
+    const addPanel = document.getElementById('addAdminPanel');
+    if (addPanel) addPanel.style.display = 'none';
+    populateEditAdminSelect();
+  }
+}
+
+function showEditFormMsg(text, isError) {
+  const msg = document.getElementById('editAdminMsg');
+  if (!msg) return;
+  msg.textContent = text;
+  msg.className = 'form-msg ' + (isError ? 'error' : 'success');
+  msg.style.display = 'block';
+}
+
+function populateEditAdminSelect() {
+  const sel = document.getElementById('edit-adm-id');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML =
+    '<option value="">— Select admin ID —</option>' +
+    adminRows
+      .map((a) => {
+        const label = escapeHtml(a.id) + ' — ' + escapeHtml(a.fullName || a.userName || '');
+        return `<option value="${escapeAttr(a.id)}">${label}</option>`;
+      })
+      .join('');
+  if (current && adminRows.some((a) => a.id === current)) {
+    sel.value = current;
+    onEditAdminSelect();
+  }
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
+function onEditAdminSelect() {
+  const sel = document.getElementById('edit-adm-id');
+  if (!sel) return;
+  const admin = adminRows.find((a) => a.id === sel.value);
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val == null ? '' : val;
+  };
+  if (!admin) {
+    set('edit-adm-fullName', '');
+    set('edit-adm-userName', '');
+    set('edit-adm-email', '');
+    set('edit-adm-phone', '');
+    set('edit-adm-adminLevel', 'PARKING');
+    set('edit-adm-password', '');
+    set('edit-adm-confirmPassword', '');
+    return;
+  }
+  set('edit-adm-fullName', admin.fullName);
+  set('edit-adm-userName', admin.userName);
+  set('edit-adm-email', admin.email);
+  set('edit-adm-phone', admin.phone === '—' ? '' : admin.phone);
+  set('edit-adm-adminLevel', admin.adminLevel || 'PARKING');
+  set('edit-adm-password', '');
+  set('edit-adm-confirmPassword', '');
 }
 
 function showFormMsg(text, isError) {
@@ -133,7 +213,9 @@ async function loadAdminList() {
     }
     if (!res.ok) throw new Error('Failed to load admins');
     const data = await res.json();
-    renderAdminRows(Array.isArray(data) ? data : []);
+    adminRows = Array.isArray(data) ? data : [];
+    renderAdminRows(adminRows);
+    populateEditAdminSelect();
   } catch (e) {
     console.error(e);
     if (tbody) {
@@ -176,6 +258,72 @@ document.addEventListener('DOMContentLoaded', () => {
       const id = btn.getAttribute('data-adm-id');
       const name = btn.getAttribute('data-adm-name') || '';
       deleteAdminById(id, name);
+    });
+  }
+
+  const editForm = document.getElementById('adminEditForm');
+  if (editForm) {
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-adm-id')?.value?.trim();
+      if (!id) {
+        showEditFormMsg('Please select an administrator.', true);
+        return;
+      }
+
+      const pwd = document.getElementById('edit-adm-password')?.value || '';
+      const confirmPwd = document.getElementById('edit-adm-confirmPassword')?.value || '';
+      if (pwd || confirmPwd) {
+        if (pwd !== confirmPwd) {
+          showEditFormMsg('Passwords do not match.', true);
+          return;
+        }
+        if (pwd.length < 4) {
+          showEditFormMsg('Password must be at least 4 characters.', true);
+          return;
+        }
+      }
+
+      const params = new URLSearchParams();
+      params.set('id', id);
+      params.set('fullName', document.getElementById('edit-adm-fullName')?.value?.trim() || '');
+      params.set('userName', document.getElementById('edit-adm-userName')?.value?.trim() || '');
+      params.set('email', document.getElementById('edit-adm-email')?.value?.trim() || '');
+      params.set('phone', document.getElementById('edit-adm-phone')?.value?.trim() || '');
+      params.set('adminLevel', document.getElementById('edit-adm-adminLevel')?.value || 'PARKING');
+      if (pwd) params.set('password', pwd);
+
+      const btn = document.getElementById('edit-adm-submitBtn');
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch('/admin/admins/update', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.success) {
+          showEditFormMsg(data.message || 'Administrator updated.', false);
+          document.getElementById('edit-adm-password').value = '';
+          document.getElementById('edit-adm-confirmPassword').value = '';
+          await loadAdminList();
+          const sel = document.getElementById('edit-adm-id');
+          if (sel) {
+            sel.value = id;
+            onEditAdminSelect();
+          }
+        } else {
+          showEditFormMsg(data.message || 'Could not update administrator.', true);
+        }
+      } catch (err) {
+        console.error(err);
+        showEditFormMsg('Network error — try again.', true);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     });
   }
 

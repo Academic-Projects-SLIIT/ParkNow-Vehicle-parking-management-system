@@ -116,6 +116,46 @@ public class AdminController {
 
 
 
+    @PostMapping("/admin/admins/update")
+    public ResponseEntity<?> updateAdmin(@RequestParam String id,
+                                         @RequestParam String fullName,
+                                         @RequestParam String userName,
+                                         @RequestParam String email,
+                                         @RequestParam(required = false, defaultValue = "") String phone,
+                                         @RequestParam String adminLevel,
+                                         @RequestParam(required = false) String password,
+                                         HttpSession session) {
+        if (!isAdmin(session)) return forbidden();
+
+        try {
+            Admin.AdminLevel level = Admin.AdminLevel.valueOf(adminLevel.trim().toUpperCase());
+            String phoneVal = phone == null || phone.isBlank() ? "-" : phone.trim();
+            Admin admin = adminService.updateAdmin(
+                    id.trim(),
+                    fullName,
+                    userName,
+                    email,
+                    phoneVal,
+                    level,
+                    password,
+                    adminId(session));
+
+            String currentId = adminId(session);
+            if (currentId != null && currentId.equals(admin.getId())) {
+                session.setAttribute("userName", admin.getUserName());
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Administrator updated."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()));
+        }
+    }
+
+
     @PostMapping("/admin/admins/delete/{id}")
     public ResponseEntity<?> deleteAdmin(@PathVariable String id,
                                          HttpSession session) {
