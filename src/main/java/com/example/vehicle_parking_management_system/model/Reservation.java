@@ -6,7 +6,6 @@ public class Reservation {
 
     public enum ReservationStatus { ACTIVE, COMPLETED, CANCELLED }
 
-    /** UNPAID: counts toward driver balance until an admin marks PAID. */
     public enum PaymentStatus { UNPAID, PAID }
 
     private String id;
