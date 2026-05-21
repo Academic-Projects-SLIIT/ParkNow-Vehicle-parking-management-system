@@ -40,7 +40,7 @@ public class Feedback {
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
 
-    // Polymorphic Display Renderers for UI
+
     public interface RatingDisplay {
         String render(int rating);
     }
@@ -65,7 +65,7 @@ public class Feedback {
 
     public String toCsvRow() {
         
-        // id, driverId, rating, category, comment, submittedAt
+
         return String.join(",",
                 id,
                 driverId,
