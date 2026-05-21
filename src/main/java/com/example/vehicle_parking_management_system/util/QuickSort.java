@@ -4,22 +4,12 @@ import com.example.vehicle_parking_management_system.model.ParkingSlot;
 
 import java.util.List;
 
-/**
- * QuickSort implementation for sorting ParkingSlot lists by slotNumber.
- *
- * Data Structure: in-place QuickSort on a List<ParkingSlot>.
- * Used by SlotService.getAvailableSlots() before rendering the slot map.
- *
- * Time complexity: O(n log n) average, O(n²) worst case.
- */
+
 public class QuickSort {
 
-    private QuickSort() {} // Utility class — no instantiation
+    private QuickSort() {}
 
-    /**
-     * Sort a list of ParkingSlots ascending by slotNumber (lexicographic).
-     * Mutates the list in place.
-     */
+
     public static void sort(List<ParkingSlot> slots) {
         if (slots == null || slots.size() <= 1) return;
         quickSort(slots, 0, slots.size() - 1);
@@ -33,10 +23,7 @@ public class QuickSort {
         }
     }
 
-    /**
-     * Partition around the last element as pivot.
-     * Compare by slotNumber lexicographically ("P-01" < "P-02" < "S-01" …).
-     */
+
     private static int partition(List<ParkingSlot> slots, int low, int high) {
         String pivot = slots.get(high).getSlotNumber();
         int    i     = low - 1;
