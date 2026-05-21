@@ -13,7 +13,7 @@ public class VehicleRepository {
     @Value("${parknow.data.vehicles}")
     private String filePath;
 
-    // ── Read operations ───────────────────────────────────────────────────────
+
 
     public List<Vehicle> findAll() {
         List<Vehicle> vehicles = new ArrayList<>();
@@ -38,7 +38,6 @@ public class VehicleRepository {
         return findAll().stream().filter(v -> v.getId().equals(id)).findFirst();
     }
 
-    /** O(n) scan; callers should use the HashMap cache in the service layer. */
     public Optional<Vehicle> findByPlateNumber(String plate) {
         return findAll().stream()
                 .filter(v -> v.getPlateNumber().equalsIgnoreCase(plate))
@@ -53,7 +52,6 @@ public class VehicleRepository {
         return result;
     }
 
-    /** Count vehicles per owner (driver) ID. */
     public Map<String, Integer> countByOwnerId() {
         Map<String, Integer> counts = new HashMap<>();
         for (Vehicle v : findAll()) {
@@ -64,7 +62,7 @@ public class VehicleRepository {
         return counts;
     }
 
-    // ── Write operations ──────────────────────────────────────────────────────
+
 
     public void save(Vehicle vehicle) {
         ensureFileExists();
@@ -82,7 +80,6 @@ public class VehicleRepository {
         return removed;
     }
 
-    /** Remove all vehicles owned by a driver. Returns number of rows removed. */
     public int deleteByOwnerId(String ownerId) {
         List<Vehicle> all = findAll();
         int before = all.size();
@@ -106,7 +103,7 @@ public class VehicleRepository {
         return found;
     }
 
-    // ── Internal helpers ──────────────────────────────────────────────────────
+
 
     private void rewriteAll(List<Vehicle> vehicles) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, false))) {
@@ -126,10 +123,7 @@ public class VehicleRepository {
         }
     }
 
-    /**
-     * Parse a CSV line into the correct Vehicle subclass.
-     * type field (index 2) determines Car vs Bike.
-     */
+
     private Vehicle parseLine(String line) {
         String[] p = line.split(",", -1);
         if (p.length < 5) return null;
