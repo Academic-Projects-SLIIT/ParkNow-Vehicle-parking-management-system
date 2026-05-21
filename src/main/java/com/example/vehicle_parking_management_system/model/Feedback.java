@@ -7,7 +7,7 @@ public class Feedback {
     private String id;
     private String driverId;
     private int rating;
-    private String category;// 1 to 5
+    private String category;
     private String comments;
     private LocalDateTime submittedAt;
 
