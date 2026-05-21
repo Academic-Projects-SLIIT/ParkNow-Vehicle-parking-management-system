@@ -11,15 +11,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * UserController — HTTP endpoints for User Management
- *
- * POST /register        Register a new driver account
- * POST /login           Authenticate; set session; redirect by role
- * GET  /profile         View logged-in user profile
- * POST /profile/update  Update name, email, (optionally) password
- * POST /logout          Invalidate session
- */
+
 @RestController
 public class UserController {
 
@@ -30,7 +22,6 @@ public class UserController {
     }
 
     
-    //POST /register  -  Register a new driver account
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestParam String fullName,      //saves request parameters (from the form submission) into local variables
                                       @RequestParam String userName,
@@ -57,7 +48,6 @@ public class UserController {
     }
 
 
-    //On success: stores user in session, returns redirect path based on role.
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestParam String email,
                                    @RequestParam String password,
