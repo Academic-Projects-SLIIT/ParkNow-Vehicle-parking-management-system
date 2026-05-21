@@ -10,15 +10,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-/*
- * UserRepository — reads and writes users.csv.
- *
- * CSV format (Driver): id,name,email,passwordHash,role,licenseNumber,vehicleCount
- * CSV format (Admin):  id,name,email,passwordHash,role,adminLevel,createdBy
- *
- * All users (both Driver and Admin) are stored in the same users.csv file,
- * differentiated by the 'role' column.
- */
+
 @Repository
 public class UserRepository {
 
@@ -28,14 +20,13 @@ public class UserRepository {
     @Value("${parknow.data.admins}")
     private String adminFilePath;
 
-    /** Load all users from CSV into a list. */
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
         File file = new File(filePath);
         File adminFile = new File(adminFilePath);
         if (!file.exists() && !adminFile.exists()) return users;
 
-        // Read from users.csv
+
         if (file.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
@@ -50,7 +41,7 @@ public class UserRepository {
             }
         }
 
-        // Read from admins.csv
+
         if (adminFile.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(adminFile))) {
                 String line;
@@ -68,19 +59,16 @@ public class UserRepository {
         return users;
     }
 
-    /** Find a user by email (used for login). */
     public Optional<User> findByEmail(String email) {
         return findAll().stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email))
                 .findFirst();
     }
 
-    /** Count registered drivers (users.csv rows with role DRIVER). */
     public int countDrivers() {
         return findAllDrivers().size();
     }
 
-    /** All accounts with role DRIVER (from users.csv and admins.csv). */
     public List<Driver> findAllDrivers() {
         List<Driver> drivers = new ArrayList<>();
         for (User u : findAll()) {
@@ -91,15 +79,13 @@ public class UserRepository {
         return drivers;
     }
 
-    /** Find a user by their unique ID. */
     public Optional<User> findById(String id) {
         return findAll().stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst();
     }
     
-    //Append a new user to the CSV file.
-    //Precondition: caller has verified no duplicate email.
+
     public void save(User user) {
         ensureFileExists();
         try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, true))) {
@@ -113,7 +99,7 @@ public class UserRepository {
     }
 
 
-    //check if users.csv exists. if not, create it.
+
     private void ensureFileExists() {
         File f = new File(filePath);
         if (!f.exists()) {
@@ -124,11 +110,7 @@ public class UserRepository {
         }
     }
 
-    /**
-     * Parse a single CSV line into a User subclass.
-     * Driver: 9 fields — id,fullName,userName,email,phone,passwordHash,role,licenseNumber,vehicleCount
-     * Admin:  9 fields — id,fullName,userName,email,phone,passwordHash,role,adminLevel,createdBy
-     */
+
     private User parseLine(String line) {
         String[] parts = line.split(",", -1);
         if (parts.length < 7) return null;
@@ -178,10 +160,7 @@ public class UserRepository {
         try { return Integer.parseInt(s); } catch (NumberFormatException e) { return 0; }
     }
 
-    /**
-     * Update an existing user by rewriting the entire file.
-     * Finds the row with the matching ID and replaces it.
-     */
+
     public boolean update(User updated) {
         List<User> all = findAll();
         boolean found = false;
@@ -204,9 +183,7 @@ public class UserRepository {
         }
     }
 
-    /**
-     * Remove a driver from users.csv only (does not affect admins.csv).
-     */
+
     public boolean deleteDriverById(String id) {
         File file = new File(filePath);
         if (!file.exists()) return false;
