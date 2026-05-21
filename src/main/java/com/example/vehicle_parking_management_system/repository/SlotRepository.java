@@ -8,13 +8,7 @@ import jakarta.annotation.PostConstruct;
 import java.io.*;
 import java.util.*;
 
-/**
- * SlotRepository — reads and writes slots.csv.
- *
- * CSV format: id,slotNumber,status,occupantVehicleId,hourlyRate
- *
- * On first run (empty CSV), seeds the configured number of parking slots.
- */
+
 @Repository
 public class SlotRepository {
 
@@ -27,12 +21,7 @@ public class SlotRepository {
     @Value("${parknow.rate.default:150.0}")
     private double defaultRate;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-    /**
-     * Seed slots on startup if the CSV is empty or missing.
-     * Generates totalCount generic parking slots.
-     */
     @PostConstruct
     public void seedIfEmpty() {
         ensureFileExists();
@@ -53,7 +42,7 @@ public class SlotRepository {
         }
     }
 
-    // ── Read operations ───────────────────────────────────────────────────────
+
 
     public List<ParkingSlot> findAll() {
         List<ParkingSlot> slots = new ArrayList<>();
@@ -86,7 +75,7 @@ public class SlotRepository {
         return result;
     }
 
-    // ── Write operations ──────────────────────────────────────────────────────
+
 
     public boolean update(ParkingSlot updated) {
         List<ParkingSlot> all = findAll();
@@ -102,7 +91,7 @@ public class SlotRepository {
         return found;
     }
 
-    // ── Internal helpers ──────────────────────────────────────────────────────
+
 
     public void rewriteAll(List<ParkingSlot> slots) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, false))) {
@@ -122,9 +111,7 @@ public class SlotRepository {
         }
     }
 
-    /**
-     * Parse: id,slotNumber,status,occupantVehicleId,hourlyRate
-     */
+
     private ParkingSlot parseLine(String line) {
         String[] p = line.split(",", -1);
         if (p.length < 5) return null;
