@@ -16,18 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * AdminController — HTTP endpoints for Component 05 (Admin Management).
- *
- * GET  /admin/dashboard          System summary stats
- * GET  /admin/admins             List all admin accounts
- * POST /admin/admins/add         Create a new admin
- * POST /admin/admins/delete/{id} Delete an admin account
- * GET  /admin/users              View all driver accounts
- * GET  /admin/logs               View system activity log
- *
- * All /admin/** endpoints enforce ADMIN role check.
- */
+
 @RestController
 public class AdminController {
 
@@ -49,7 +38,7 @@ public class AdminController {
         this.slotService = slotService;
     }
 
-    // ── Auth helpers ──────────────────────────────────────────────────────────
+
 
     private boolean isAdmin(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("userRole"))
@@ -65,16 +54,7 @@ public class AdminController {
         return (String) session.getAttribute("userId");
     }
 
-    // ── Dashboard ─────────────────────────────────────────────────────────────
 
-    // ── Admin account management ──────────────────────────────────────────────
-
-
-
-    /**
-     * GET /admin/admins/list
-     * JSON list of admins (no password hashes).
-     */
     @GetMapping("/admin/admins/list")
     public ResponseEntity<?> listAdmins(HttpSession session) {
         if (!isAdmin(session)) return forbidden();
@@ -94,10 +74,7 @@ public class AdminController {
         return ResponseEntity.ok(rows);
     }
 
-    /**
-     * POST /admin/admins/add
-     * Form params: fullName, userName, email, phone (optional), password, adminLevel (SUPER|PARKING|FINANCE|READONLY)
-     */
+
     @PostMapping("/admin/admins/add")
     public ResponseEntity<?> addAdmin(@RequestParam String fullName,
                                       @RequestParam String userName,
@@ -139,10 +116,6 @@ public class AdminController {
 
 
 
-    /**
-     * POST /admin/admins/delete/{id}
-     * Soft-delete: removes admin from admins.csv.
-     */
     @PostMapping("/admin/admins/delete/{id}")
     public ResponseEntity<?> deleteAdmin(@PathVariable String id,
                                          HttpSession session) {
@@ -160,22 +133,14 @@ public class AdminController {
         }
     }
 
-    // ── Driver oversight ──────────────────────────────────────────────────────
 
-    /**
-     * GET /admin/drivers/data
-     * Returns driver list and summary stats for the admin driver-management UI.
-     */
     @GetMapping("/admin/drivers/data")
     public ResponseEntity<?> driverManagementData(HttpSession session) {
         if (!isAdmin(session)) return forbidden();
         return ResponseEntity.ok(userService.getDriverManagementData());
     }
 
-    /**
-     * POST /admin/drivers/delete/{id}
-     * Removes driver from users.csv and cascades related vehicles, reservations, and feedback.
-     */
+
     @PostMapping("/admin/drivers/delete/{id}")
     public ResponseEntity<?> deleteDriver(@PathVariable String id,
                                           HttpSession session) {
@@ -188,22 +153,14 @@ public class AdminController {
         ));
     }
 
-    // ── Slot oversight ──────────────────────────────────────────────────────
 
-    /**
-     * GET /admin/slots/data
-     * Returns slot list and summary stats for the admin slot-management UI.
-     */
     @GetMapping("/admin/slots/data")
     public ResponseEntity<?> slotManagementData(HttpSession session) {
         if (!isAdmin(session)) return forbidden();
         return ResponseEntity.ok(slotService.getSlotManagementData());
     }
 
-    /**
-     * POST /admin/slots/update
-     * Updates slot status and hourly rate in slots.csv.
-     */
+
     @PostMapping("/admin/slots/update")
     public ResponseEntity<?> updateSlot(@RequestParam String slotId,
                                         @RequestParam String status,
@@ -227,22 +184,14 @@ public class AdminController {
         }
     }
 
-    // ── Vehicle oversight ─────────────────────────────────────────────────────
 
-    /**
-     * GET /admin/vehicles/data
-     * Returns vehicle list and summary stats for the admin vehicle-management UI.
-     */
     @GetMapping("/admin/vehicles/data")
     public ResponseEntity<?> vehicleManagementData(HttpSession session) {
         if (!isAdmin(session)) return forbidden();
         return ResponseEntity.ok(vehicleService.getVehicleManagementData());
     }
 
-    /**
-     * POST /admin/vehicles/delete/{id}
-     * Removes a vehicle from vehicles.csv.
-     */
+
     @PostMapping("/admin/vehicles/delete/{id}")
     public ResponseEntity<?> deleteVehicle(@PathVariable String id,
                                            HttpSession session) {
@@ -255,12 +204,7 @@ public class AdminController {
         ));
     }
 
-    // ── Activity log ──────────────────────────────────────────────────────────
 
-    /**
-     * GET /admin/logs
-     * Returns the system activity log lines (newest first).
-     */
     @GetMapping("/admin/logs/data")
     public ResponseEntity<?> getActivityLogs(HttpSession session) {
         if (!isAdmin(session)) return forbidden();
