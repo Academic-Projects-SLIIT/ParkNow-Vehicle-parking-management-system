@@ -9,16 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * FeedbackController — HTTP endpoints for Component 06 (Feedback & Review Management).
- *
- * GET  /feedback/submit                 Show submission form data (completed reservations)
- * POST /feedback/submit                 Submit new feedback
- * GET  /feedback/my                     Driver's own submitted feedback
- * GET  /admin/feedback                  Admin view: all feedback
- * POST /admin/feedback/update/{id}      Admin moderates a review
- * POST /admin/feedback/delete/{id}      Admin deletes a review
- */
+
 @RestController
 public class FeedbackController {
 
@@ -30,10 +21,7 @@ public class FeedbackController {
 
     // ── Driver: submit feedback ───────────────────────────────────────────────
 
-    /**
-     * GET /feedback/submit
-     * Returns system average rating — used to render the submission form header.
-     */
+
     @GetMapping("/feedback/submit")
     public ResponseEntity<?> feedbackFormData(HttpSession session) {
         if (session.getAttribute("userId") == null) return unauthorised();
@@ -43,10 +31,7 @@ public class FeedbackController {
         ));
     }
 
-    /**
-     * POST /feedback/submit
-     * Body params: reservationId, rating (1-5), category, comment
-     */
+
     @PostMapping("/submit-feedback")
     public ResponseEntity<?> submitFeedback(
                                             @RequestParam int rating,
@@ -84,10 +69,7 @@ public class FeedbackController {
 
     // ── Driver: view own feedback ─────────────────────────────────────────────
 
-    /**
-     * GET /feedback/my
-     * Returns all feedback submitted by the logged-in driver.
-     */
+
     
 
 
@@ -96,10 +78,7 @@ public class FeedbackController {
 
     // ── Admin: view all feedback ──────────────────────────────────────────────
 
-    /**
-     * GET /admin/feedback/data
-     * Admin-only: stats and feedback rows for the management UI.
-     */
+
     @GetMapping("/admin/feedback/data")
     public ResponseEntity<?> adminFeedbackData(HttpSession session) {
         if (!isAdmin(session)) return adminForbidden();
@@ -108,10 +87,7 @@ public class FeedbackController {
     
     // ── Admin: moderate ───────────────────────────────────────────────────────
 
-    /**
-     * POST /admin/feedback/update/{id}
-     * Body params: comment (required for moderation edit)
-     */
+
     @PostMapping("/admin/feedback/update/{id}")
     public ResponseEntity<?> updateFeedback(@PathVariable String id,
                                             @RequestParam String comment,
@@ -136,9 +112,6 @@ public class FeedbackController {
 
 
 
-    /**
-     * POST /admin/feedback/delete/{id}
-     */
     @PostMapping("/admin/feedback/delete/{id}")
     public ResponseEntity<?> deleteFeedback(@PathVariable String id,
                                             HttpSession session) {
