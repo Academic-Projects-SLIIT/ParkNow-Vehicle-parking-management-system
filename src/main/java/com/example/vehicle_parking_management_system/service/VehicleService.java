@@ -71,12 +71,12 @@ public class VehicleService {
             throw new IllegalArgumentException("A vehicle with that plate already exists.");
         }
 
-        // Create and save the vehicle
+
         Vehicle vehicle = new Vehicle(IdGenerator.next("VHCL"), normalizedPlate, vtype, color, ownerId);
         
         vehicleRepository.save(vehicle);
 
-        // Log the activity
+
         activityLogger.log(vehicle.getOwnerId(), "DRIVER", "VEHICLE_REGISTERED",
                 "Registered vehicle with plate " + normalizedPlate);
         
@@ -84,10 +84,7 @@ public class VehicleService {
         return vehicle;
     }
 
-    /**
-     * Admin vehicle-management page: summary stats plus vehicle rows
-     * (owner names from users.csv; registration dates from activity log when available).
-     */
+
     public Map<String, Object> getVehicleManagementData() {
         List<Vehicle> vehicles = vehicleRepository.findAll();
         Map<String, LocalDateTime> registeredByPlate = loadVehicleRegistrationTimes();
@@ -155,7 +152,6 @@ public class VehicleService {
         return payload;
     }
 
-    /** Admin removes any vehicle by id. */
     public boolean deleteVehicleByAdmin(String vehicleId, String adminId) {
         Optional<Vehicle> vehicleOpt = vehicleRepository.findById(vehicleId);
         if (vehicleOpt.isEmpty()) return false;
