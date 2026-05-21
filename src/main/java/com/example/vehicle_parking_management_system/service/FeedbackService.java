@@ -15,12 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * FeedbackService — business logic for Component 06 (Feedback & Review Management).
- *
- * Polymorphism: uses RatingDisplay interface to render feedback differently
- * for drivers vs admins without changing the Feedback data.
- */
+
 @Service
 public class FeedbackService {
 
@@ -29,7 +24,7 @@ public class FeedbackService {
     private final ActivityLogger        activityLogger;
     private final UserRepository        userRepository;
 
-    // Polymorphic display renderers
+
     private final Feedback.RatingDisplay driverDisplay = new Feedback.DriverRatingDisplay();
     private final Feedback.RatingDisplay adminDisplay  = new Feedback.AdminRatingDisplay();
 
@@ -43,10 +38,10 @@ public class FeedbackService {
         this.userRepository     = userRepository;
     }
 
-    // ── Submit feedback ───────────────────────────────────────────────────────
+
     public Feedback submitFeedback(String driverId, int rating,String category, String comment) {
         
-        // Validate rating range
+
         if (rating < 1 || rating > 5) {
             throw new IllegalArgumentException("Rating must be between 1 and 5.");
         }
@@ -63,7 +58,7 @@ public class FeedbackService {
         return feedback;
     }
 
-    // ── Query ─────────────────────────────────────────────────────────────────
+
 
     public List<Feedback> getAllFeedback() {
         return feedbackRepository.findAll();
@@ -73,7 +68,6 @@ public class FeedbackService {
         return feedbackRepository.findByDriverId(driverId);
     }
 
-    /** Returns all feedback. */
     public List<Feedback> getApprovedFeedback() {
         return feedbackRepository.findAll();
     }
@@ -82,10 +76,7 @@ public class FeedbackService {
         return feedbackRepository.findById(feedbackId);
     }
 
-    /**
-     * Calculate the average rating across all approved feedback.
-     * Returns 0.0 if no approved feedback exists.
-     */
+
     public double calculateAverageRating() {
         List<Feedback> approved = getAllFeedback();
         if (approved.isEmpty()) return 0.0;
@@ -94,10 +85,7 @@ public class FeedbackService {
         return Math.round(avg * 10.0) / 10.0; // 1 decimal place
     }
 
-    /**
-     * Return feedback grouped by category with average rating per category.
-     * Useful for admin analytics panel.
-     */
+
     public Map<String, Double> averageRatingByCategory() {
         return feedbackRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
@@ -107,7 +95,7 @@ public class FeedbackService {
                 ));
     }
 
-    /** Stats + table rows for admin feedback management page. */
+
     public Map<String, Object> getAdminFeedbackManagementData() {
         List<Feedback> all = new ArrayList<>(feedbackRepository.findAll());
         all.sort(Comparator.comparing(
@@ -186,23 +174,18 @@ public class FeedbackService {
         return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 
-    // ── Polymorphic display ───────────────────────────────────────────────────
 
-    /** Render feedback using the driver-facing display format. */
+
     public String renderForDriver(Feedback feedback) {
         return driverDisplay.render(feedback.getRating());
     }
 
-    /** Render feedback using the admin-facing display format. */
     public String renderForAdmin(Feedback feedback) {
         return adminDisplay.render(feedback.getRating());
     }
 
-    // ── Admin moderation ──────────────────────────────────────────────────────
 
-    /**
-     * Admin updates feedback content or status.
-     */
+
     public boolean updateFeedback(String feedbackId, String newComment,
                                    String adminId) {
         Optional<Feedback> opt = feedbackRepository.findById(feedbackId);
@@ -220,9 +203,7 @@ public class FeedbackService {
         return updated;
     }
 
-    /**
-     * Admin deletes a feedback entry.
-     */
+
     public boolean deleteFeedback(String feedbackId, String adminId) {
         boolean deleted = feedbackRepository.deleteById(feedbackId);
         if (deleted) {
