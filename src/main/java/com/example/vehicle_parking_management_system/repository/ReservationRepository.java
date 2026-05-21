@@ -100,6 +100,13 @@ public class ReservationRepository {
         return found;
     }
 
+    public boolean deleteById(String id) {
+        List<Reservation> all = findAll();
+        boolean removed = all.removeIf(r -> r.getId().equals(id));
+        if (removed) rewriteAll(all);
+        return removed;
+    }
+
     public List<Reservation> deleteByDriverId(String driverId) {
         List<Reservation> all = findAll();
         List<Reservation> removed = new ArrayList<>();

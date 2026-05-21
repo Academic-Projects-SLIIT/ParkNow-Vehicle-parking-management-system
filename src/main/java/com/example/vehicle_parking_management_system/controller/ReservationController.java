@@ -106,9 +106,10 @@ public class ReservationController {
 
         String role     = (String) session.getAttribute("userRole");
         String driverId = "ADMIN".equals(role) ? null : userId;
+        String adminId  = "ADMIN".equals(role) ? userId : null;
 
         try {
-            Reservation completed = reservationService.checkOut(id, driverId);
+            Reservation completed = reservationService.checkOut(id, driverId, adminId);
             return ResponseEntity.ok(Map.of(
                     "success",   true,
                     "message",   "Checkout successful.",
@@ -159,6 +160,51 @@ public class ReservationController {
                 "success", true,
                 "updated", updated,
                 "message", updated + " reservation(s) marked as paid."));
+    }
+
+
+    @PostMapping("/admin/reservations/end-session")
+    public ResponseEntity<?> endReservationSessions(
+            @RequestParam(value = "reservationIds", required = false) List<String> reservationIds,
+            HttpSession session) {
+        if (!isAdmin(session)) return adminForbidden();
+        if (reservationIds == null || reservationIds.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false, "message", "No reservations selected."));
+        }
+        String adminId = (String) session.getAttribute("userId");
+        int ended = reservationService.endActiveSessions(reservationIds, adminId);
+        if (ended == 0) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "No active sessions in the selection to end."));
+        }
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "ended", ended,
+                "message", ended + " session(s) ended. Fees calculated for elapsed time."));
+    }
+
+
+    @PostMapping("/admin/reservations/delete")
+    public ResponseEntity<?> deleteReservations(
+            @RequestParam(value = "reservationIds", required = false) List<String> reservationIds,
+            HttpSession session) {
+        if (!isAdmin(session)) return adminForbidden();
+        if (reservationIds == null || reservationIds.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false, "message", "No reservations selected."));
+        }
+        String adminId = (String) session.getAttribute("userId");
+        int deleted = reservationService.deleteReservations(reservationIds, adminId);
+        if (deleted == 0) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false, "message", "No reservations were deleted."));
+        }
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "deleted", deleted,
+                "message", deleted + " reservation(s) deleted."));
     }
 
 

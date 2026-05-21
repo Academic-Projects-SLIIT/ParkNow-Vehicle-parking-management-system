@@ -68,37 +68,37 @@
 		<div class="hero-stats-row">
 		  <div class="hero-stat">
 			<div class="hero-stat-label">Total Capacity</div>
-			<div class="hero-stat-val">240</div>
-			<div class="hero-stat-sub">Slots available</div>
+			<div class="hero-stat-val" id="stat-total-capacity" data-stat-animate="int">—</div>
+			<div class="hero-stat-sub">Parking slots</div>
 		  </div>
 		  <div class="hero-stat">
 			<div class="hero-stat-label">Occupied</div>
-			<div class="hero-stat-val v-orange">87</div>
-			<div class="hero-stat-sub">36.3% utilization</div>
+			<div class="hero-stat-val v-orange" id="stat-occupied" data-stat-animate="int">—</div>
+			<div class="hero-stat-sub" id="stat-utilization-sub">— utilization</div>
 		  </div>
 		  <div class="hero-stat">
 			<div class="hero-stat-label">Available</div>
-			<div class="hero-stat-val v-teal">153</div>
-			<div class="hero-stat-sub">63.7% free</div>
+			<div class="hero-stat-val v-teal" id="stat-available" data-stat-animate="int">—</div>
+			<div class="hero-stat-sub" id="stat-free-sub">— free</div>
 		  </div>
 		  <div class="hero-stat">
 			<div class="hero-stat2-icon">👤</div>
 			<div>
-			  <div class="hero-stat-val">4,821</div>
-			  <div class="hero-stat-label">Happy Clients</div>
+			  <div class="hero-stat-val" id="stat-happy-clients" data-stat-animate="int">—</div>
+			  <div class="hero-stat-label">Registered Drivers</div>
 			</div>
 		  </div>
 		  <div class="hero-stat">
 			<div class="hero-stat2-icon">📅</div>
 			<div>
-			  <div class="hero-stat-val">38.6K</div>
+			  <div class="hero-stat-val" id="stat-total-reservations" data-stat-animate="int">—</div>
 			  <div class="hero-stat-label">Total Reservations</div>
 			</div>
 		  </div>
 		  <div class="hero-stat">
 			<div class="hero-stat2-icon">⭐</div>
 			<div>
-			  <div class="hero-stat-val" style="color:var(--gold);">4.8 / 5</div>
+			  <div class="hero-stat-val" id="stat-avg-rating" style="color:var(--gold);" data-stat-animate="text">—</div>
 			  <div class="hero-stat-label">Avg. Rating</div>
 			</div>
 		  </div>
@@ -108,44 +108,63 @@
 </section>
 
   <!-- Pricing Section -->
-  <section id="pricing-section" style="padding: 80px 56px; background: var(--dark);">
+  <section id="pricing-section" class="home-section">
     <div class="hero-content">
-      <div class="section-title">
-        <h2 style="font-family: var(--font-display); font-size: 2.5rem; color: var(--white);">Flexible Pricing</h2>
-      </div>
-      
-        <div class="card">
-          
-          <div style="font-size: 2rem; color: var(--dark); font-weight: 700; margin: 20px 0; text-align: center;">LKR 150<small style="font-size: 1rem; color: var(--ink-muted); text-align: center;">/hr</small></div>
-          
-          <ul style="margin-top: 20px; font-size: 0.85rem; color: var(--ink-soft); list-style: none; display: flex; flex-direction: column; gap: 8px;">
-            <li>✓ For All type of Vehicles</li>
+      <span class="hero-pill">💰 Pricing</span>
+      <h2 class="home-section-title">Flexible <span class="h-gold">Pricing</span></h2>
+      <p class="home-section-desc">Simple hourly rates — pay only for the time you park.</p>
+      <div class="home-pricing-grid">
+        <div class="home-glass-card home-pricing-card">
+          <div class="home-pricing-badge">Standard Rate</div>
+          <div class="home-pricing-amount">
+            LKR <span id="pricing-hourly-rate">—</span><small>/hr</small>
+          </div>
+          <ul class="home-pricing-features">
+            <li>✓ All vehicle types</li>
+            <li>✓ Real-time slot booking</li>
+            <li>✓ Secure checkout &amp; billing</li>
           </ul>
+          <button class="btn btn-gold" type="button" onclick="showPage('pg-login')">Reserve a Slot</button>
         </div>
-        
+      </div>
     </div>
   </section>
 
   <!-- About Section -->
-  <section id="about-section" style="padding: 80px 56px; background: var(--dark);;">
+  <section id="about-section" class="home-section">
     <div class="hero-content">
-      <div class="row-container">
-        <div class="left-box" style="top: 0;">
-          <div class="section-title">
-            <h2 style="font-family: var(--font-display); font-size: 2.5rem; color: var(--white);">About <span class="h-orange">ParkNow</span></h2>
-          </div>
-		  <div class="card">
-          <p style="font-size: 1.1rem; color: var(--ink-soft); line-height: 1.8; margin-top: 20px;">
+      <span class="hero-pill">ℹ️ About</span>
+      <h2 class="home-section-title">About <span class="h-orange">ParkNow</span></h2>
+      <div class="home-about-grid">
+        <div class="home-glass-card">
+          <p class="home-about-text">
             ParkNow is a Vehicle Parking Management System developed as a Year 1 Semester 2 Java OOP project at Sri Lanka Institute of Information Technology. The project was created by a dedicated team of six members with the aim of improving traditional parking management through a more efficient digital solution.
           </p>
-          <p style="font-size: 1.1rem; color: var(--ink-soft); line-height: 1.8; margin-top: 15px;">
+        </div>
+        <div class="home-glass-card">
+          <p class="home-about-text">
             This system allows users to easily manage parking activities by providing features such as parking slot reservations, vehicle entry tracking, availability monitoring, and administrative management functions. It helps reduce manual errors, save time, and improve the overall parking experience for both drivers and administrators.
           </p>
-          <p style="font-size: 1.1rem; color: var(--ink-soft); line-height: 1.8; margin-top: 15px;">
+        </div>
+        <div class="home-glass-card home-about-wide">
+          <p class="home-about-text">
             Built using object-oriented programming principles, the project demonstrates practical implementation of Java concepts while solving a real-world problem through smart parking management.
           </p>
-		  </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedback Section -->
+  <section id="feedback-section" class="home-section">
+    <div class="hero-content">
+      <span class="hero-pill">⭐ Reviews</span>
+      <h2 class="home-section-title">What <span class="h-teal">Drivers</span> Say</h2>
+      <p class="home-section-desc">Featured feedback from our community — 4★ and 5★ ratings only.</p>
+      <div class="home-feedback-grid" id="home-feedback-grid"></div>
+      <div class="home-feedback-empty" id="home-feedback-empty" style="display:none;">
+        <div style="font-size:2rem;opacity:0.4;margin-bottom:10px;">💬</div>
+        <p>No 4★ or 5★ reviews yet. Be the first to share your experience!</p>
       </div>
     </div>
   </section>

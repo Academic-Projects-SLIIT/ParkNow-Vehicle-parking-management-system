@@ -288,6 +288,70 @@ async function markSingleUnpaid(id) {
 async function bulkAction(action) {
   if (selectedRows.size === 0) return;
 
+  if (action === 'delete') {
+    const count = selectedRows.size;
+    const noun = count === 1 ? 'reservation' : 'reservations';
+    if (!confirm(`Delete ${count} selected ${noun}? This cannot be undone.`)) return;
+    const body = new URLSearchParams();
+    [...selectedRows].forEach((id) => body.append('reservationIds', id));
+    try {
+      const res = await fetch('/admin/reservations/delete', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        showToast('✅', data.message || 'Reservation(s) deleted.');
+        selectedRows.clear();
+        await loadReservations();
+      } else {
+        showToast('❌', data.message || 'Could not delete reservation(s).');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('❌', 'Network error.');
+    }
+    return;
+  }
+
+  if (action === 'end') {
+    const ids = [...selectedRows].filter((id) => {
+      const r = reservations.find((x) => x.id === id);
+      return r && r.uiStatus === 'active';
+    });
+    if (!ids.length) {
+      showToast('ℹ️', 'No active sessions in the selection.');
+      return;
+    }
+    const count = ids.length;
+    const noun = count === 1 ? 'session' : 'sessions';
+    if (!confirm(`End ${count} active ${noun}? Fees will be calculated up to now.`)) return;
+    const body = new URLSearchParams();
+    ids.forEach((id) => body.append('reservationIds', id));
+    try {
+      const res = await fetch('/admin/reservations/end-session', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        showToast('✅', data.message || 'Session(s) ended.');
+        selectedRows.clear();
+        await loadReservations();
+      } else {
+        showToast('❌', data.message || 'Could not end session(s).');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('❌', 'Network error.');
+    }
+    return;
+  }
+
   if (action === 'pay') {
     const ids = [...selectedRows].filter((id) => {
       const r = reservations.find((x) => x.id === id);

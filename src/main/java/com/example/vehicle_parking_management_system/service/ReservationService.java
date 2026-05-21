@@ -125,6 +125,10 @@ public class ReservationService {
     }
 
     public Reservation checkOut(String reservationId, String driverId) {
+        return checkOut(reservationId, driverId, null);
+    }
+
+    public Reservation checkOut(String reservationId, String driverId, String adminId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new NoSuchElementException(
                         "Reservation not found: " + reservationId));
@@ -150,11 +154,35 @@ public class ReservationService {
 
         reservationRepository.update(reservation);
 
-        slotService.releaseSlot(reservation.getSlotId(), driverId);
+        String releaseActor = driverId != null ? driverId : (adminId != null ? adminId : "ADMIN");
+        slotService.releaseSlot(reservation.getSlotId(), releaseActor);
 
-        activityLogger.log(driverId, "DRIVER", "BOOKING_CHECKED_OUT",
-                "Reservation: " + reservationId + " | Fee: LKR " + fee);
+        if (driverId != null) {
+            activityLogger.log(driverId, "DRIVER", "BOOKING_CHECKED_OUT",
+                    "Reservation: " + reservationId + " | Fee: LKR " + fee);
+        } else if (adminId != null) {
+            activityLogger.log(adminId, "ADMIN", "SESSION_ENDED",
+                    "Reservation: " + reservationId + " | Fee: LKR " + fee);
+        }
         return reservation;
+    }
+
+    public int endActiveSessions(List<String> reservationIds, String adminId) {
+        if (reservationIds == null || reservationIds.isEmpty()) return 0;
+        int ended = 0;
+        for (String id : reservationIds) {
+            if (id == null || id.isBlank()) continue;
+            Optional<Reservation> opt = reservationRepository.findById(id.trim());
+            if (opt.isEmpty()) continue;
+            if (opt.get().getStatus() != Reservation.ReservationStatus.ACTIVE) continue;
+            try {
+                checkOut(id.trim(), null, adminId);
+                ended++;
+            } catch (RuntimeException e) {
+                System.err.println("[ReservationService] End session failed for " + id + ": " + e.getMessage());
+            }
+        }
+        return ended;
     }
 
 
@@ -201,6 +229,30 @@ public class ReservationService {
         return out;
     }
 
+
+    public int deleteReservations(List<String> reservationIds, String adminId) {
+        if (reservationIds == null || reservationIds.isEmpty()) return 0;
+        int deleted = 0;
+        for (String id : reservationIds) {
+            if (id == null || id.isBlank()) continue;
+            Optional<Reservation> opt = reservationRepository.findById(id.trim());
+            if (opt.isEmpty()) continue;
+            Reservation r = opt.get();
+            if (r.getStatus() == Reservation.ReservationStatus.ACTIVE) {
+                try {
+                    slotService.releaseSlot(r.getSlotId(), adminId != null ? adminId : "ADMIN");
+                } catch (RuntimeException ignored) {
+                    // Slot may already be available; continue cleanup
+                }
+            }
+            if (reservationRepository.deleteById(r.getId())) {
+                deleted++;
+                activityLogger.log(adminId != null ? adminId : "ADMIN", "ADMIN", "RESERVATION_DELETED",
+                        "Reservation: " + r.getId());
+            }
+        }
+        return deleted;
+    }
 
     public int markPaymentsUnpaid(List<String> reservationIds, String adminId) {
         if (reservationIds == null || reservationIds.isEmpty()) return 0;

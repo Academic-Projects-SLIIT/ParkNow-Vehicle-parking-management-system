@@ -85,6 +85,38 @@ public class FeedbackService {
         return Math.round(avg * 10.0) / 10.0; // 1 decimal place
     }
 
+    /** Public home page: feedback with rating 4 or 5, newest first. */
+    public List<Map<String, Object>> getPublicHighRatedFeedback(int limit) {
+        List<Feedback> all = new ArrayList<>(feedbackRepository.findAll());
+        all.sort(Comparator.comparing(
+                Feedback::getSubmittedAt,
+                Comparator.nullsLast(Comparator.naturalOrder())).reversed());
+
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+        List<Map<String, Object>> rows = new ArrayList<>();
+        int max = limit > 0 ? limit : 12;
+
+        for (Feedback f : all) {
+            if (f.getRating() < 4) continue;
+            String driverName = userRepository.findById(f.getDriverId())
+                    .map(User::getFullName)
+                    .orElse("Driver");
+            String category = f.getCategory() != null ? f.getCategory().trim() : "GENERAL";
+
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("id", f.getId());
+            row.put("driverName", driverName);
+            row.put("rating", f.getRating());
+            row.put("ratingDisplay", renderForDriver(f));
+            row.put("category", formatCategoryLabel(category));
+            row.put("comment", f.getComments() != null ? f.getComments().trim() : "");
+            row.put("date", f.getSubmittedAt() != null ? f.getSubmittedAt().format(dateFmt) : "—");
+            rows.add(row);
+            if (rows.size() >= max) break;
+        }
+        return rows;
+    }
+
 
     public Map<String, Double> averageRatingByCategory() {
         return feedbackRepository.findAll().stream()
