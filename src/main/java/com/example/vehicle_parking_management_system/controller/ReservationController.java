@@ -12,15 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * ReservationController — HTTP endpoints for Component 04 (Reservation & Booking).
- *
- * GET  /booking                   Booking form data (available slots)
- * POST /booking/create            Create new reservation
- * GET  /booking/active            Active reservations for logged-in driver
- * POST /booking/checkout/{id}     Check out and compute fee
- * GET  /admin/reservations        Admin view of all reservations
- */
+
 @RestController
 public class ReservationController {
 
@@ -33,12 +25,7 @@ public class ReservationController {
         this.slotService        = slotService;
     }
 
-    // ── Booking form data ─────────────────────────────────────────────────────
 
-    /**
-     * GET /booking
-     * Returns available slots so the booking form can populate a dropdown.
-     */
     @GetMapping("/booking")
     public ResponseEntity<?> getBookingFormData(HttpSession session) {
         String driverId = requireDriver(session);
@@ -55,12 +42,7 @@ public class ReservationController {
         ));
     }
 
-    // ── Create booking ────────────────────────────────────────────────────────
 
-    /**
-     * POST /booking/create
-     * Body params: slotId, vehicleId, startTime, endTime
-     */
     @PostMapping("/booking/create")
     public ResponseEntity<?> createBooking(@RequestParam String slotId,
                                            @RequestParam String vehicleId,
@@ -90,12 +72,7 @@ public class ReservationController {
         }
     }
 
-    // ── Active sessions ───────────────────────────────────────────────────────
 
-    /**
-     * GET /booking/active
-     * Returns all ACTIVE reservations for the logged-in driver.
-     */
     @GetMapping("/booking/active")
     public ResponseEntity<?> getActiveSessions(HttpSession session) {
         String driverId = requireDriver(session);
@@ -112,12 +89,7 @@ public class ReservationController {
         )).toList());
     }
 
-    // ── Checkout ──────────────────────────────────────────────────────────────
 
-    /**
-     * POST /booking/checkout/{id}
-     * Completes the reservation, computes fee, releases the slot.
-     */
     @PostMapping("/booking/checkout/{id}")
     public ResponseEntity<?> checkout(@PathVariable String id,
                                       HttpSession session) {
@@ -145,12 +117,7 @@ public class ReservationController {
         }
     }
 
-    // ── Driver history ────────────────────────────────────────────────────────
 
-    /**
-     * GET /booking/history
-     * Returns complete booking history for the logged-in driver.
-     */
     @GetMapping("/booking/history")
     public ResponseEntity<?> getHistory(HttpSession session) {
         String driverId = requireDriver(session);
@@ -161,22 +128,14 @@ public class ReservationController {
                         .map(this::toMap).toList());
     }
 
-    // ── Admin view ────────────────────────────────────────────────────────────
 
-    /**
-     * GET /admin/reservations/data
-     * Admin-only: reservations with driver/plate/slot labels for the management UI.
-     */
     @GetMapping("/admin/reservations/data")
     public ResponseEntity<?> adminReservationsData(HttpSession session) {
         if (!isAdmin(session)) return adminForbidden();
         return ResponseEntity.ok(reservationService.getAdminReservationRows());
     }
 
-    /**
-     * POST /admin/reservations/confirm-payment
-     * Marks selected reservations as PAID (admin confirms payment received).
-     */
+
     @PostMapping("/admin/reservations/confirm-payment")
     public ResponseEntity<?> confirmReservationPayments(
             @RequestParam(value = "reservationIds", required = false) List<String> reservationIds,
@@ -194,10 +153,7 @@ public class ReservationController {
                 "message", updated + " reservation(s) marked as paid."));
     }
 
-    /**
-     * POST /admin/reservations/mark-unpaid
-     * Marks selected completed reservations as UNPAID (admin correction).
-     */
+
     @PostMapping("/admin/reservations/mark-unpaid")
     public ResponseEntity<?> markReservationPaymentsUnpaid(
             @RequestParam(value = "reservationIds", required = false) List<String> reservationIds,
@@ -229,7 +185,7 @@ public class ReservationController {
 
     
 
-    // ── Internal helpers ──────────────────────────────────────────────────────
+
 
     private String requireDriver(HttpSession session) {
         Object userId = session.getAttribute("userId");
