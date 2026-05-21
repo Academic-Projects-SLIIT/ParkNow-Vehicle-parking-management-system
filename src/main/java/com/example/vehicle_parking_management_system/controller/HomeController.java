@@ -1,7 +1,7 @@
-//tells the compiler and JVM that this class lives under com/example/vehicle_parking_management_system/controller
+
 package com.example.vehicle_parking_management_system.controller;
 
-//tell the compiler which external classes HomeController.java intends to use
+
 import com.example.vehicle_parking_management_system.service.AdminService;
 import com.example.vehicle_parking_management_system.service.ReservationService;
 import jakarta.servlet.http.HttpSession;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-//a handler for web requests. marks the class as a Spring MVC controller component
+
 @Controller
 public class HomeController {
 
@@ -25,7 +25,7 @@ public class HomeController {
         this.reservationService = reservationService;
     }
 
-    //handle HTTP GET requests for specific URL paths ("/" and "/home")
+
     @GetMapping({"/", "/home"})
     public String home() {
         return "index.html";
