@@ -41,9 +41,20 @@ public class FeedbackService {
 
     public Feedback submitFeedback(String driverId, int rating,String category, String comment) {
         
-
         if (rating < 1 || rating > 5) {
             throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        }
+
+        List<Feedback> existing = feedbackRepository.findByDriverId(driverId);
+        if (!existing.isEmpty()) {
+            Feedback feedback = existing.get(0);
+            feedback.setRating(rating);
+            feedback.setCategory(category);
+            feedback.setComments(comment);
+            feedback.setSubmittedAt(LocalDateTime.now());
+            feedbackRepository.update(feedback);
+            activityLogger.log(driverId, "DRIVER", "FEEDBACK_UPDATED", "Rating: " + rating);
+            return feedback;
         }
 
         Feedback feedback = new Feedback(

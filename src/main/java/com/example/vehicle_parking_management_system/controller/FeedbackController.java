@@ -24,9 +24,15 @@ public class FeedbackController {
     @GetMapping("/feedback/submit")
     public ResponseEntity<?> feedbackFormData(HttpSession session) {
         if (session.getAttribute("userId") == null) return unauthorised();
+        
+        String driverId = (String) session.getAttribute("userId");
+        List<Feedback> userFeedbacks = feedbackService.getFeedbackByDriver(driverId);
+        Feedback existingFeedback = userFeedbacks.isEmpty() ? null : userFeedbacks.get(0);
+
         return ResponseEntity.ok(Map.of(
                 "averageRating", feedbackService.calculateAverageRating(),
-                "categories",    List.of("CLEANLINESS", "SAFETY", "STAFF", "GENERAL")
+                "categories",    List.of("CLEANLINESS", "SAFETY", "STAFF", "GENERAL"),
+                "existingFeedback", existingFeedback != null ? existingFeedback : ""
         ));
     }
 
@@ -74,30 +80,6 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getAdminFeedbackManagementData());
     }
     
-
-
-
-    @PostMapping("/admin/feedback/update/{id}")
-    public ResponseEntity<?> updateFeedback(@PathVariable String id,
-                                            @RequestParam String comment,
-                                            HttpSession session) {
-        if (!isAdmin(session)) return adminForbidden();
-
-        String adminId = (String) session.getAttribute("userId");
-        if (comment == null || comment.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "Comment cannot be empty."
-            ));
-        }
-
-        boolean updated = feedbackService.updateFeedback(id, comment.trim(), adminId);
-        return ResponseEntity.ok(Map.of(
-                "success", updated,
-                "message", updated ? "Feedback updated." : "Feedback not found."
-        ));
-    }
-
 
 
 

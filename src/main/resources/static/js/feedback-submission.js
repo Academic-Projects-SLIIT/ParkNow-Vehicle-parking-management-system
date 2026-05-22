@@ -46,6 +46,30 @@ function selectCat(el) {
   el.classList.add('selected');
 }
 
+function selectCatByString(catString) {
+  const cat = document.querySelector(`.rating-cat[data-cat="${catString}"]`);
+  if (cat) {
+    selectCat(cat);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await fetch('/feedback/submit');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.existingFeedback && data.existingFeedback !== "") {
+      const fb = data.existingFeedback;
+      setRating(fb.rating);
+      selectCatByString(fb.category || 'GENERAL');
+      document.getElementById('feedback-comments').value = fb.comments || '';
+      document.getElementById('submit-feedback-btn').textContent = 'Update Feedback';
+    }
+  } catch(e) {
+    console.error('Error fetching existing feedback', e);
+  }
+});
+
 //submit feedback form
 async function submitFeedback() {
   const rating = currentRating;
@@ -63,7 +87,8 @@ async function submitFeedback() {
 
     const data = await response.json();
     if (response.ok) { 
-      alert('Feedback submitted successfully! Thank you for your input.');
+      alert(data.message || 'Feedback saved successfully!');
+
       // Optionally reset form
       setRating(0);
       document.querySelectorAll('.rating-cat').forEach(c => c.classList.remove('selected'));
