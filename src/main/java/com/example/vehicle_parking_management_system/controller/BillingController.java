@@ -28,12 +28,12 @@ public class BillingController {
 
 
     @PostMapping("/confirm-cash")
-    public ResponseEntity<?> confirmCashPayment(HttpSession session) {
+    public ResponseEntity<?> confirmCashPayment(HttpSession session, @RequestParam(required = false) Double amount) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).body(Map.of("success", false, "message", "Authentication required."));
         }
-        return ResponseEntity.ok(reservationService.confirmDriverCashPayments(userId));
+        return ResponseEntity.ok(reservationService.confirmDriverCashPayments(userId, amount));
     }
 
 
