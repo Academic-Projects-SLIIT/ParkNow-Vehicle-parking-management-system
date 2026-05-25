@@ -37,22 +37,70 @@ function formatLkr(n) {
   return 'LKR ' + v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
-function showPaymentInfo() {
-  const el = document.getElementById('billing-msg');
-  if (!el) return;
-  el.style.display = 'block';
-  el.className = 'form-msg info';
-  el.textContent =
-    'Outstanding balances are cleared when an administrator confirms your payment.Refresh this page after payment is confirmed.';
+let currentAmountDue = 0;
+let currentPayMethod = 'cash';
+
+function updatePayButton() {
+  const btn = document.getElementById('pay-outstanding-btn');
+  if (!btn) return;
+  if (currentPayMethod === 'cash') {
+    btn.textContent = 'Confirm Payment';
+  } else {
+    btn.textContent = currentAmountDue > 0 ? 'Pay Outstanding Balance (' + formatLkr(currentAmountDue) + ')' : 'No outstanding balance';
+  }
+}
+
+async function showPaymentInfo() {
+  if (currentPayMethod === 'cash') {
+    const amtInput = document.getElementById('cash-amount');
+    const amount = amtInput ? amtInput.value : currentAmountDue;
+    
+    try {
+      const resp = await fetch('/api/billing/confirm-cash', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ amount: amount })
+      });
+      const data = await resp.json();
+      
+      const el = document.getElementById('billing-msg');
+      if (el) {
+        el.style.display = 'block';
+        if (data.success) {
+            el.className = 'form-msg success';
+            el.style.backgroundColor = '#d4edda';
+            el.style.color = '#155724';
+            el.textContent = 'Payment confirmation requested. Please wait for admin approval.';
+        } else {
+            el.className = 'form-msg error';
+            el.textContent = data.message || 'Error confirming payment.';
+        }
+      }
+      fetchBillingDetails();
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    const el = document.getElementById('billing-msg');
+    if (!el) return;
+    el.style.display = 'block';
+    el.className = 'form-msg info';
+    el.textContent =
+      'Online card payment is not enabled. Pay with cash and tap Confirm Payment, or ask an administrator for help.';
+  }
 }
 
 function selectPay(type) {
+  currentPayMethod = type;
   const cash = document.getElementById('pm-cash');
   const card = document.getElementById('pm-card');
   const cardFields = document.getElementById('card-fields');
+  const cashFields = document.getElementById('cash-fields');
   if (cash) cash.classList.toggle('selected', type === 'cash');
   if (card) card.classList.toggle('selected', type === 'card');
   if (cardFields) cardFields.style.display = type === 'card' ? 'block' : 'none';
+  if (cashFields) cashFields.style.display = type === 'cash' ? 'block' : 'none';
+  updatePayButton();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -100,9 +148,12 @@ async function fetchBillingDetails() {
       rateEl.innerHTML = 'LKR ' + Math.round(r) + '<small>/hr</small>';
     }
     if (payBtn) {
-      const due = Number(data.amountDue) || 0;
-      payBtn.textContent =
-        due > 0 ? 'Pay Outstanding Balance (' + formatLkr(due) + ')' : 'No outstanding balance';
+      currentAmountDue = Number(data.amountDue) || 0;
+      const cashAmt = document.getElementById('cash-amount');
+      if (cashAmt && !cashAmt.value) {
+          cashAmt.value = currentAmountDue;
+      }
+      updatePayButton();
     }
 
     const ml = document.getElementById('bsp-month-label');

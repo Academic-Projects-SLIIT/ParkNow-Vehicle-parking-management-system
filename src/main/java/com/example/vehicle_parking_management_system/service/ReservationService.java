@@ -71,8 +71,9 @@ public class ReservationService {
                 .map(ParkingSlot::getHourlyRate)
                 .orElse(150.0);
         double fee = FeeCalculator.calculate(reservation.getStartTime(), endTime, rate);
-        reservation.setFee(fee);
-        reservation.setPaymentStatus(Reservation.PaymentStatus.UNPAID);
+        if (reservation.getPaymentStatus() == Reservation.PaymentStatus.UNPAID) {
+            reservation.setFee(fee);
+        }
 
         if (!reservationRepository.update(reservation)) {
             return false;
@@ -149,8 +150,9 @@ public class ReservationService {
                 .orElse(150.0);
 
         double fee = FeeCalculator.calculate(reservation.getStartTime(), endTime, rate);
-        reservation.setFee(fee);
-        reservation.setPaymentStatus(Reservation.PaymentStatus.UNPAID);
+        if (reservation.getPaymentStatus() == Reservation.PaymentStatus.UNPAID) {
+            reservation.setFee(fee);
+        }
 
         reservationRepository.update(reservation);
 
@@ -206,26 +208,32 @@ public class ReservationService {
     }
     
 
-    public Map<String, Object> confirmDriverCashPayments(String driverId) {
+    public Map<String, Object> confirmDriverCashPayments(String driverId, Double amount) {
         List<Reservation> list = reservationRepository.findByDriverId(driverId);
-        int updated = 0;
+        int pendingCount = 0;
+        double totalFee = 0.0;
+        StringBuilder reservationsLog = new StringBuilder();
         for (Reservation r : list) {
-            if (r.getStatus() != Reservation.ReservationStatus.COMPLETED) continue;
             if (r.getPaymentStatus() != Reservation.PaymentStatus.UNPAID) continue;
             if (r.getFee() <= 0) continue;
-            r.setPaymentStatus(Reservation.PaymentStatus.PAID);
-            if (reservationRepository.update(r)) {
-                updated++;
-                activityLogger.log(driverId, "DRIVER", "PAYMENT_CONFIRMED_CASH",
-                        "Reservation: " + r.getId() + " | LKR " + r.getFee());
-            }
+            
+            pendingCount++;
+            totalFee += r.getFee();
+            if (reservationsLog.length() > 0) reservationsLog.append(", ");
+            reservationsLog.append(r.getId());
+        }
+        if (pendingCount > 0) {
+            String details = "Amount Stated: LKR " + (amount != null ? amount : totalFee) +
+                             " | Total Due: LKR " + totalFee +
+                             " | Reservations: " + reservationsLog.toString();
+            activityLogger.log(driverId, "DRIVER", "PAYMENT_CONFIRMATION_REQUEST", details);
         }
         Map<String, Object> out = new LinkedHashMap<>();
-        out.put("success", true);
-        out.put("updated", updated);
-        out.put("message", updated == 0
-                ? "No unpaid completed reservations to confirm."
-                : updated + " reservation(s) marked as paid.");
+        out.put("success", pendingCount > 0);
+        out.put("updated", pendingCount);
+        out.put("message", pendingCount == 0
+                ? "No unpaid reservations to request confirmation for."
+                : "Payment confirmation requested for " + pendingCount + " reservation(s).");
         return out;
     }
 
