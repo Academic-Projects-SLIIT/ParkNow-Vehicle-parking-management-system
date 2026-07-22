@@ -77,8 +77,8 @@ Use these credentials to explore the system:
 
 | Role | Email | Username | Password |
 |------|-------|----------|----------|
-| **Admin** | a@gmail.com | a | a |
-| **Driver** | b@gmail.com | b | b |
+| **Admin** | a@gmail.com | a | aaaaaaaa |
+| **Driver** | b@gmail.com | b | bbbbbbbb |
 
 > **Tip:** Sign up as a new driver to explore the full registration flow!
 
