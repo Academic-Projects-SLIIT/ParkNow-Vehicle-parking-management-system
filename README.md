@@ -1,102 +1,130 @@
-# Vehicle Parking Management System
+# 🅿️ ParkNow - Vehicle Parking Management System
 
-A robust, Spring Boot-based solution designed to streamline vehicle parking operations, slot allocation, and administrative oversight. This system leverages custom data structures and a file-based persistence layer to provide a lightweight yet powerful management experience.
+Welcome to **ParkNow**, a modern and intuitive parking management platform built to simplify the way drivers book parking spaces and help administrators manage operations efficiently.
+
+Whether you're a driver looking for a convenient parking spot or an administrator overseeing the parking facility, ParkNow makes the entire experience seamless and hassle-free.
 
 <img src="public/image.jpeg">
 
-## 🚀 Features
+## ✨ What You Can Do
 
-### For Drivers
-*   **Real-time Slot Map:** Visual representation of available, occupied, and maintenance slots.
-*   **Automated Booking:** Smart slot allocation using a LIFO (Last-In, First-Out) algorithm.
-*   **Vehicle Management:** Register and track multiple vehicles per profile.
-*   **Billing & History:** View real-time billing and past reservation records.
-*   **Feedback System:** Submit service feedback directly to the administration.
+### 🚗 For Drivers
+- **Find Available Spots** - View real-time parking availability with an interactive slot map
+- **Book in Seconds** - Smart automatic slot recommendation makes booking effortless
+- **Manage Your Vehicles** - Register and track multiple vehicles from one account
+- **Track Your Spending** - View detailed billing and booking history
+- **Share Your Feedback** - Help us improve by submitting service feedback
 
-### For Administrators
-*   **Comprehensive Dashboard:** High-level analytics including occupancy rates, monthly revenue, and active sessions.
-*   **Slot Management:** Manually override slot statuses (Available/Maintenance) and update hourly rates.
-*   **User Oversight:** Manage driver accounts and monitor administrative access levels.
-*   **Activity Audit:** System-wide logging of all critical actions (logins, allocations, releases) in a CSV audit trail.
+### 🛡️ For Administrators
+- **Monitor Operations** - View key metrics like occupancy rates, revenue, and active sessions
+- **Control Parking Slots** - Manage slot availability and set pricing
+- **Manage Users** - Oversee driver accounts and admin permissions
+- **Track Activity** - Complete audit logs of all system activities for compliance
 
-## 🛠️ Technical Architecture
+## 🛠️ Built With Best Practices
 
-### Core Technologies
-*   **Framework:** Spring Boot 3.x
-*   **Security:** Spring Security with BCrypt password hashing and custom CSRF protection.
-*   **Persistence:** CSV-based flat-file database (no external SQL/NoSQL dependency required).
-*   **Build Tool:** Maven (Wrapper included).
+**Framework & Tools:**
+- **Spring Boot 3.x** - Modern Java framework for fast development
+- **Spring Security** - Secure login with encrypted passwords and CSRF protection
+- **CSV-based Storage** - No database setup needed, all data stored locally
+- **Maven** - Reliable build and project management
 
-### Custom Data Structures & Algorithms
-*   **LIFO Slot Allocation:** Utilizes a custom `SlotStack` implementation to manage available slots, ensuring the most recently released slots are prioritized for new arrivals.
-*   **Efficient Sorting:** Implements `QuickSort` for consistent ordering of parking slots and search results across the UI.
-*   **Thread Safety:** Synchronized service methods prevent race conditions during high-concurrency slot allocation.
+**Smart Features Under the Hood:**
+- **LIFO Slot Allocation** - Uses a stack-based algorithm to prioritize recently freed parking spots
+- **Efficient Sorting** - Quick sort implementation for fast search results across the platform
+- **Thread-Safe Operations** - Handles multiple users booking simultaneously without conflicts
 
-## 📂 Project Structure
+## 📂 Project Organization
 
-```text
+```
 src/main/java/com/example/vehicle_parking_management_system/
-├── config/      # Security and Application configurations
-├── model/       # Domain entities (User, Driver, Admin, ParkingSlot, Reservation)
-├── repository/  # CSV-based Data Access Objects
-├── service/     # Business logic layer
-├── util/        # Custom data structures (SlotStack) and utilities (QuickSort, Logger)
-└── web/         # Controllers for Web and API endpoints
+├── config/      → Security settings and application configuration
+├── model/       → Core data objects (User, Admin, Slot, Booking, etc.)
+├── repository/  → Data access layer (reads/writes to CSV files)
+├── service/     → Business logic (booking, pricing, validation)
+├── util/        → Helper tools (stack structure, sorting, logging)
+└── web/         → Web pages and API endpoints
 ```
 
-## 🚦 Getting Started
+## � Quick Start
 
-### Prerequisites
-*   JDK 17 or higher
-*   Maven 3.6+
+### What You Need
+- **Java 17** or newer
+- **Maven** (included in the repository)
 
-### Installation
+### Get It Running (3 Steps)
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/Vehicle-parking-management-system.git
-   cd Vehicle-parking-management-system
-   ```
+**1. Clone the repository:**
+```bash
+git clone https://github.com/your-username/Vehicle-parking-management-system.git
+cd Vehicle-parking-management-system
+```
 
-2. **Configure Data Paths:**
-   Update `src/main/resources/application.properties` to set your desired CSV storage locations:
-   ```properties
-   parknow.data.slots=data/slots.csv
-   parknow.data.users=data/users.csv
-   parknow.data.activity-log=data/activity.log
-   ```
+**2. Run the application:**
+```bash
+./mvnw spring-boot:run
+```
+> On Windows, use: `mvnw.cmd spring-boot:run`
 
-3. **Run the application:**
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+**3. Open in your browser:**
+```
+http://localhost:8080
+```
 
-4. **Access the System:**
-   Open your browser and navigate to `http://localhost:8080`
+### 🔓 Try It Out - Test Accounts
 
-## 🔒 Security Configuration
+Use these credentials to explore the system:
 
-The system is secured using Spring Security, featuring:
-*   **Role-Based Access Control:** Differentiated access for `DRIVER` and `ADMIN` roles.
-*   **Public Endpoints:** Home, Registration, and the Slot Map are accessible for guest browsing.
-*   **Session Management:** Form-based authentication with secure logout.
-*   **CSRF Protection:** Selectively ignored for H2 console and specific AJAX-heavy endpoints to facilitate seamless UI interactions.
+| Role | Email | Username | Password |
+|------|-------|----------|----------|
+| **Admin** | a@gmail.com | a | a |
+| **Driver** | b@gmail.com | b | b |
 
-## 📊 Data Persistence
+> **Tip:** Sign up as a new driver to explore the full registration flow!
 
-The system uses a CSV repository pattern, making it highly portable.
-*   `users.csv`: Stores hashed credentials and profile details.
-*   `slots.csv`: Maintains real-time state of the parking lot.
-*   `activity.log`: A synchronized audit log capturing `actorId`, `role`, `action`, and `timestamp`.
+## 🔒 Security & Privacy
 
-## 🤝 Contributing
+Your data is protected with industry-standard security:
+- **Encrypted Passwords** - All passwords are securely hashed using BCrypt
+- **Role-Based Access** - Different features for drivers and administrators
+- **Session Security** - Automatic logout and secure session management
+- **Attack Prevention** - Built-in CSRF protection against malicious requests
+- **Public Access** - Home page, parking map, and registration are open for guests to explore
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git checkout -b feature/AmazingFeature`)
-5. Open a Pull Request
+## � How Data Is Stored
+
+All your data is stored locally in simple CSV files - no complex database needed:
+
+- **users.csv** - Driver accounts and passwords
+- **admins.csv** - Administrator accounts  
+- **slots.csv** - Current parking lot status
+- **reservations.csv** - Booking history
+- **vehicles.csv** - Registered vehicles
+- **feedbacks.csv** - User feedback submissions
+
+This makes ParkNow lightweight, portable, and easy to backup!
+
+## 👥 Contributors
+
+- [@SayuruPabasara](https://github.com/SayuruPabasara)
+- [@AdhithyaSS](https://github.com/AdhithyaSS)
+- [@Thesvgmlwr](https://github.com/Thesvgmlwr)
+- [@AshinsaBowalage](https://github.com/AshinsaBowalage)
+- [@Sasika-Dodanwela](https://github.com/Sasika-Dodanwela)
+- [@IsuruWeerasinghe3](https://github.com/IsuruWeerasinghe3)
+
+## 🤝 Want to Contribute?
+
+We'd love your help! Here's how to get involved:
+
+1. **Fork** the project on GitHub
+2. **Create** a new branch for your feature (`git checkout -b feature/YourBrilliantIdea`)
+3. **Make** your changes and commit (`git commit -m 'Add YourBrilliantIdea'`)
+4. **Push** to your branch (`git push origin feature/YourBrilliantIdea`)
+5. **Open** a Pull Request and describe your changes
+
+That's it! We'll review and merge your contribution.
 
 ## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the mvnw.cmd headers for details.
+This project is licensed under the **Apache License 2.0**. See the license headers in the source code for details.
